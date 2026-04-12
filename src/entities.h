@@ -8,8 +8,8 @@
 #include "vector.h"
 
 typedef struct Bullet {
-  polygon shape;
-  vector2 velocity;
+  Polygon shape;
+  Vector2 velocity;
   double lifetime;
 } Bullet;
 
@@ -21,10 +21,9 @@ typedef struct Bullets {
 } Bullets;
 
 typedef struct Ship {
-  polygon shape;
-  vector2 velocity;
-  vector2 acceleration;
-  double angle;
+  Polygon shape;
+  Vector2 velocity;
+  Vector2 acceleration;
 } Ship;
 
 void create_bullet(Bullet* b, const Ship *ship, double lifetime);

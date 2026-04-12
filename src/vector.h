@@ -5,30 +5,30 @@
 typedef struct {
     double x;
     double y;
-} vector2;
+} Vector2;
 
-vector2 creat_vector2(double x, double y);
+Vector2 creat_vector2(double x, double y);
 
-void vector_add(vector2 *a, const vector2 *b);
+Vector2 vector_add(Vector2 a, Vector2 b);
 
-void vector_rotate(vector2 *vector, double angle);
+void vector_update(Vector2 *a, const Vector2 *b);
 
-typedef struct polygonal_shape {
-    vector2 *points;
+Vector2 vector_rotate(Vector2 vector, double angle);
+
+typedef struct {
+    Vector2 position; // centroid
+    double angle;
+    Vector2 *offsets; // points defined relative to centroid
+    Vector2 *world; //computed: position + rotated offsets
     size_t point_count;
+} Polygon;
 
-} polygon;
+Polygon polygon_init(size_t point_count, Vector2 position, Vector2 offsets[], double angle);
 
-polygon polygon_init(size_t point_count, vector2 vectors[]);
+void update_world(const Polygon *polygon);
 
-void draw_polygon(SDL_Renderer *renderer, const polygon *polygon);
+void draw_polygon(SDL_Renderer *renderer, const Polygon *polygon);
 
-void polygon_destroy(const polygon *poly);
+void polygon_destroy(const Polygon *poly);
 
-vector2 polygon_centroid(const polygon *polygon);
-
-void polygon_translate(const polygon *polygon, const vector2 *velocity);
-
-void polygon_rotate(const polygon *polygon, double angle);
-
-void polygon_rotate_around(vector2 centroid, const polygon *polygon, double angle);
+void polygon_translate(Polygon *polygon,  Vector2 velocity);

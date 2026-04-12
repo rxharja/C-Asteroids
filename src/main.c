@@ -59,23 +59,23 @@ void handleKeyboard(Ship *ship, Bullets *bullets) {
 
     if (state[SDL_SCANCODE_W]) {
         const double accel_magnitude = 0.001;
-        ship->acceleration.x += accel_magnitude * cos(ship->angle);
-        ship->acceleration.y += accel_magnitude * sin(ship->angle);
+        ship->acceleration.x += accel_magnitude * cos(ship->shape.angle);
+        ship->acceleration.y += accel_magnitude * sin(ship->shape.angle);
     } else {
         ship->acceleration.x = 0;
         ship->acceleration.y = 0;
     }
 
     if (state[SDL_SCANCODE_A]) {
-        polygon_rotate(&ship->shape, -0.05);
-        ship->angle -= 0.05;
-        normalizeAngle(&ship->angle);
+        ship->shape.angle -= 0.05;
+        normalizeAngle(&ship->shape.angle);
+        update_world(&ship->shape);
     }
 
     if (state[SDL_SCANCODE_D]) {
-        polygon_rotate(&ship->shape, 0.05);
-        ship->angle += 0.05;
-        normalizeAngle(&ship->angle);
+        ship->shape.angle += 0.05;
+        normalizeAngle(&ship->shape.angle);
+        update_world(&ship->shape);
     }
 
     if (state[SDL_SCANCODE_SPACE]) {
@@ -87,7 +87,7 @@ void handleKeyboard(Ship *ship, Bullets *bullets) {
     }
 }
 
-void drag(vector2 *velocity) {
+void drag(Vector2 *velocity) {
     const double drag_factor = 0.99;
     const double threshold = 0.02;
 
@@ -103,25 +103,25 @@ void drag(vector2 *velocity) {
 }
 
 
-void wrap_around_screen(const polygon *shape, const int screen_width, const int screen_height) {
+void wrap_around_screen(Polygon *shape, const int screen_width, const int screen_height) {
     for (int i = 0; i < shape->point_count; i++) {
         // Check X-axis
-        if (shape->points[i].x < 0) {
-            polygon_translate(shape, &(vector2){screen_width, 0});
-        } else if (shape->points[i].x > screen_width) {
-            polygon_translate(shape, &(vector2){-screen_width, 0});
+        if (shape->world[i].x < 0) {
+            polygon_translate(shape, (Vector2){screen_width, 0});
+        } else if (shape->world[i].x > screen_width) {
+            polygon_translate(shape, (Vector2){-screen_width, 0});
         }
 
         // Check Y-axis
-        if (shape->points[i].y < 0) {
-            polygon_translate(shape, &(vector2){0, screen_height});
-        } else if (shape->points[i].y > screen_height) {
-            polygon_translate(shape, &(vector2){0, -screen_height});
+        if (shape->world[i].y < 0) {
+            polygon_translate(shape, (Vector2){0, screen_height});
+        } else if (shape->world[i].y > screen_height) {
+            polygon_translate(shape, (Vector2){0, -screen_height});
         }
     }
 }
 
-void draw_bullets(SDL_Renderer *renderer, const Bullets *bullets) {
+void draw_bullets(SDL_Renderer *renderer, Bullets *bullets) {
     for (int i = 0; i < bullets->count; i++) {
         draw_polygon(renderer, &bullets->bullets[i].shape);
         wrap_around_screen(&bullets->bullets[i].shape, WINDOW_WIDTH, WINDOW_WIDTH);
