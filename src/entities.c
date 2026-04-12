@@ -3,9 +3,11 @@
 //
 #include "entities.h"
 
+#include "config.h"
+
 void create_bullet(Bullet *b, const Ship *ship, const double lifetime) {
   const Vector2 nose = ship->shape.offsets[0];
-  const Vector2 stop = {.x = nose.x + 10, .y = nose.y };
+  const Vector2 stop = {.x = nose.x + BULLET_SIZE, .y = nose.y };
 
   b->shape = polygon_init(2, ship->shape.position, (Vector2[]){nose,stop}, ship->shape.angle);
   b->velocity.x = 5 * cos(ship->shape.angle);
@@ -36,10 +38,9 @@ void move_ship(Ship *ship) {
 }
 
 void fire_bullet(Bullets *bullet_mgr, const Ship *ship) {
-  if (bullet_mgr->count < 16) {
+  if (bullet_mgr->count < BULLET_COUNT) {
     Bullet *b = &bullet_mgr->bullets[bullet_mgr->count];
-    create_bullet(b, ship, 100);
-
+    create_bullet(b, ship, BULLET_LIFETIME);
     bullet_mgr->count++;
   }
 }

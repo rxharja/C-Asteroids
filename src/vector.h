@@ -32,3 +32,6 @@ void draw_polygon(SDL_Renderer *renderer, const Polygon *polygon);
 void polygon_destroy(const Polygon *poly);
 
 void polygon_translate(Polygon *polygon,  Vector2 velocity);
+
+void normalizeAngle(double *angle);
+

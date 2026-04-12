@@ -6,14 +6,14 @@
 #include "config.h"
 #include "entities.h"
 
-typedef struct App {
+typedef struct {
     SDL_Renderer *renderer;
     SDL_Window *window;
     SDL_Event event;
     Ship ship;
-} App;
+} GameState;
 
-App *init_app(void) {
+GameState *init_app(void) {
     const int rendererFlags = SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED;
     const int windowFlags = SDL_WINDOW_OPENGL;
 
@@ -22,7 +22,7 @@ App *init_app(void) {
         exit(EXIT_FAILURE);
     }
 
-    App *app = calloc(1, sizeof(*app));
+    GameState *app = calloc(1, sizeof(*app));
 
     app->window = SDL_CreateWindow(
         "Asteroids",
@@ -35,18 +35,11 @@ App *init_app(void) {
     app->renderer = SDL_CreateRenderer(app->window, -1, rendererFlags);
 
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
+    app->ship = init_ship();
     return app;
 }
 
-void normalizeAngle(double *angle) {
-    if (*angle > 2 * M_PI) {
-        *angle -= 2 * M_PI;
-    } else if (*angle < 0) {
-        *angle += 2 * M_PI;
-    }
-}
-
-void destroy_app(App *app) {
+void destroy_app(GameState *app) {
     SDL_DestroyRenderer(app->renderer);
     SDL_DestroyWindow(app->window);
     SDL_Quit();
@@ -58,22 +51,21 @@ void handleKeyboard(Ship *ship, Bullets *bullets) {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
 
     if (state[SDL_SCANCODE_W]) {
-        const double accel_magnitude = 0.001;
-        ship->acceleration.x += accel_magnitude * cos(ship->shape.angle);
-        ship->acceleration.y += accel_magnitude * sin(ship->shape.angle);
+        ship->acceleration.x += ACCELERATION_MAGNITUDE * cos(ship->shape.angle);
+        ship->acceleration.y += ACCELERATION_MAGNITUDE * sin(ship->shape.angle);
     } else {
         ship->acceleration.x = 0;
         ship->acceleration.y = 0;
     }
 
     if (state[SDL_SCANCODE_A]) {
-        ship->shape.angle -= 0.05;
+        ship->shape.angle -= ANGLE_MAGNITUDE;
         normalizeAngle(&ship->shape.angle);
         update_world(&ship->shape);
     }
 
     if (state[SDL_SCANCODE_D]) {
-        ship->shape.angle += 0.05;
+        ship->shape.angle += ANGLE_MAGNITUDE;
         normalizeAngle(&ship->shape.angle);
         update_world(&ship->shape);
     }
@@ -88,16 +80,13 @@ void handleKeyboard(Ship *ship, Bullets *bullets) {
 }
 
 void drag(Vector2 *velocity) {
-    const double drag_factor = 0.99;
-    const double threshold = 0.02;
+    velocity->x *= DRAG_FACTOR;
+    velocity->y *= DRAG_FACTOR;
 
-    velocity->x *= drag_factor;
-    velocity->y *= drag_factor;
-
-    if (fabs(velocity->x) < threshold) {
+    if (fabs(velocity->x) < EPSILON) {
         velocity->x = 0;
     }
-    if (fabs(velocity->y) < threshold) {
+    if (fabs(velocity->y) < EPSILON) {
         velocity->y = 0;
     }
 }
@@ -130,9 +119,8 @@ void draw_bullets(SDL_Renderer *renderer, Bullets *bullets) {
 
 
 int main(void) {
-    App *app = init_app();
-    app->ship = init_ship();
-    Bullets bullets = {.cooldown = 250};
+    GameState *app = init_app();
+    Bullets bullets = {.cooldown = BULLET_COOLDOWN};
 
     while (1) {
         SDL_Delay(5);

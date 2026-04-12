@@ -70,3 +70,12 @@ Vector2 vector_rotate(const Vector2 vector, const double angle) {
     sin(angle) * vector.x  + cos(angle) * vector.y
     );
 }
+
+void normalizeAngle(double *angle) {
+    if (*angle > 2 * M_PI) {
+        *angle -= 2 * M_PI;
+    } else if (*angle < 0) {
+        *angle += 2 * M_PI;
+    }
+}
+
