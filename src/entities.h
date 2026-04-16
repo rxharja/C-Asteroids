@@ -22,7 +22,6 @@ typedef struct Bullets {
 
 typedef struct Ship {
   Body body;
-  Vector2 acceleration;
 } Ship;
 
 typedef struct Asteroid {
@@ -40,7 +39,7 @@ void create_bullet(Bullet* b, const Ship *ship, double lifetime);
 
 Asteroid create_asteroid(double r);
 
-Asteroids create_asteroids();
+void create_asteroids(Asteroids *asteroids);
 
 void fire_bullet(Bullets *bullet_mgr, const Ship *ship);
 

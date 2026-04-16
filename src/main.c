@@ -52,23 +52,19 @@ void handleKeyboard(Ship *ship, Bullets *bullets) {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
 
     if (state[SDL_SCANCODE_W]) {
-        ship->acceleration.x += ACCELERATION_MAGNITUDE * cos(ship->body.shape.angle);
-        ship->acceleration.y += ACCELERATION_MAGNITUDE * sin(ship->body.shape.angle);
-    } else {
-        ship->acceleration.x = 0;
-        ship->acceleration.y = 0;
+        const Vector2 force = {
+            .x = ACCELERATION_MAGNITUDE * cos(ship->body.angle),
+            .y = ACCELERATION_MAGNITUDE * sin(ship->body.angle)
+        };
+        body_accelerate(&ship->body, force);
     }
 
     if (state[SDL_SCANCODE_A]) {
-        ship->body.shape.angle -= ANGLE_MAGNITUDE;
-        normalizeAngle(&ship->body.shape.angle);
-        update_world(&ship->body.shape);
+        ship->body.angle -= ANGLE_MAGNITUDE;
     }
 
     if (state[SDL_SCANCODE_D]) {
-        ship->body.shape.angle += ANGLE_MAGNITUDE;
-        normalizeAngle(&ship->body.shape.angle);
-        update_world(&ship->body.shape);
+        ship->body.angle += ANGLE_MAGNITUDE;
     }
 
     if (state[SDL_SCANCODE_SPACE]) {
@@ -80,41 +76,19 @@ void handleKeyboard(Ship *ship, Bullets *bullets) {
     }
 }
 
-void drag(Vector2 *velocity) {
-    velocity->x *= DRAG_FACTOR;
-    velocity->y *= DRAG_FACTOR;
-
-    if (fabs(velocity->x) < EPSILON) {
-        velocity->x = 0;
-    }
-    if (fabs(velocity->y) < EPSILON) {
-        velocity->y = 0;
-    }
-}
-
-
-void wrap_around_screen(Polygon *shape, const int screen_width, const int screen_height) {
-    for (int i = 0; i < shape->point_count; i++) {
-        // Check X-axis
-        if (shape->world[i].x < 0) {
-            polygon_translate(shape, (Vector2){screen_width, 0});
-        } else if (shape->world[i].x > screen_width) {
-            polygon_translate(shape, (Vector2){-screen_width, 0});
-        }
-
-        // Check Y-axis
-        if (shape->world[i].y < 0) {
-            polygon_translate(shape, (Vector2){0, screen_height});
-        } else if (shape->world[i].y > screen_height) {
-            polygon_translate(shape, (Vector2){0, -screen_height});
-        }
-    }
+void wrap_around_screen(Body *body, const int screen_width, const int screen_height) {
+    Vector2 pos = body->position;
+    if (pos.x < 0) pos.x = screen_width;
+    else if (pos.x > screen_width)  pos.x = 0;
+    if (pos.y < 0) pos.y = screen_height;
+    else if (pos.y > screen_height) pos.y = 0;
+    body_set_position(body, pos);
 }
 
 void draw_bullets(SDL_Renderer *renderer, Bullets *bullets) {
     for (int i = 0; i < bullets->count; i++) {
         draw_polygon(renderer, &bullets->bullets[i].body.shape);
-        wrap_around_screen(&bullets->bullets[i].body.shape, WINDOW_WIDTH, WINDOW_WIDTH);
+        wrap_around_screen(&bullets->bullets[i].body, WINDOW_WIDTH, WINDOW_WIDTH);
     }
 }
 
@@ -124,9 +98,11 @@ void draw_asteroid(SDL_Renderer *renderer, Asteroid *a) {
 
 
 int main(void) {
+    srand(time(NULL));
     GameState *app = init_app();
     Bullets bullets = {.cooldown = BULLET_COOLDOWN};
-    const Asteroids asteroids = create_asteroids();
+    Asteroids asteroids = {0};
+    create_asteroids(&asteroids);
 
     while (1) {
         SDL_Delay(5);
@@ -143,19 +119,17 @@ int main(void) {
         SDL_RenderClear(app->renderer);
         SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 255);
 
-        move_ship(&app->ship);
-        wrap_around_screen(&app->ship.body.shape, WINDOW_WIDTH, WINDOW_WIDTH);
-        drag(&app->ship.body.velocity);
+        body_integrate(&app->ship.body, 1);
+        wrap_around_screen(&app->ship.body, WINDOW_WIDTH, WINDOW_WIDTH);
         draw_polygon(app->renderer, &app->ship.body.shape);
         update_bullet(&bullets);
         draw_bullets(app->renderer, &bullets);
-        for (int i = 0; i < asteroids.count; i++) {
-            srand(time(NULL));
-            Asteroid a = asteroids.asteroids[i];
-            draw_asteroid(app->renderer, &a);
-            move_body(&a.body);
-            wrap_around_screen(&a.body.shape, WINDOW_WIDTH, WINDOW_WIDTH);
-        }
+        // for (int i = 0; i < asteroids.count; i++) {
+        //     Asteroid a = asteroids.asteroids[i];
+        //     draw_asteroid(app->renderer, &a);
+        //     body_integrate(&a.body, 1);
+        //     wrap_around_screen(&a.body, WINDOW_WIDTH, WINDOW_WIDTH);
+        // }
         SDL_RenderPresent(app->renderer);
     }
 

@@ -10,10 +10,13 @@
 void create_bullet(Bullet *b, const Ship *ship, const double lifetime) {
   const Vector2 nose = ship->body.shape.offsets[0];
   const Vector2 stop = {.x = nose.x + BULLET_SIZE, .y = nose.y };
+  const Polygon shape = polygon_init(2, (Vector2[]){nose, stop});
+  const Vector2 velocity = {
+    .x = 5 * cos(ship->body.angle),
+    .y = 5 * sin(ship->body.angle)
+  };
 
-  b->body.shape = polygon_init(2, ship->body.shape.position, (Vector2[]){nose,stop}, ship->body.shape.angle);
-  b->body.velocity.x = 5 * cos(ship->body.shape.angle);
-  b->body.velocity.y = 5 * sin(ship->body.shape.angle);
+  b->body = create_body(shape, ship->body.position, velocity, -M_PI_2, 0, 1);
   b->lifetime = lifetime;
 }
 
@@ -48,40 +51,47 @@ Asteroid create_asteroid(const double r) {
     random_point(r, 3 * M_PI_2 + M_PI / 4),
     random_point(r, 3 * M_PI_2 + M_PI / 3),
   };
-  asteroid.body = create_body(polygon_init(16, position, points, 0), (Vector2){.x = random_float() / 10, .y = random_float() / 10});
+
+  asteroid.body = create_body(
+    polygon_init(16, points),
+    position,
+    (Vector2){.x = random_float() / 10, .y = random_float() / 10},
+    -M_PI_2,
+    .1,
+    1
+  );
+
   return asteroid;
 }
 
-Asteroids create_asteroids() {
-  Asteroids asteroids = {0};
-  asteroids.count = 8;
-  for (int i = 0; i < asteroids.count; i++) {
+void create_asteroids(Asteroids *asteroids) {
+  asteroids->count = 8;
+  for (int i = 0; i < asteroids->count; i++) {
     const Asteroid asteroid = create_asteroid(100 * random_float());
-    asteroids.asteroids[i] = asteroid;
+    asteroids->asteroids[i] = asteroid;
   }
-  return asteroids;
 }
 
 Ship init_ship(void) {
   Ship ship = {0};
 
-  const Vector2 position = { .x = 300, .y = 470 };
+  const Vector2 position = { .x = WINDOW_WIDTH / 2, .y = WINDOW_WIDTH / 2 };
   const Vector2 p1 = { .x = 70,  .y = 0 };    // nose — now +X
   const Vector2 p2 = { .x = -30, .y = -50 };
   const Vector2 p3 = { .x = -5,  .y = -25 };
   const Vector2 p4 = { .x = -5,  .y = 25 };
   const Vector2 p5 = { .x = -30, .y = 50 };
 
-  ship.body.shape = polygon_init(5, position, (Vector2[]){p1,p2,p3,p4,p5}, -M_PI / 2 );
-  ship.body.velocity = (Vector2){ .x = 0, .y = 0 };
-  ship.acceleration = (Vector2){ .x = 0, .y = 0 };
+  const Polygon shape = polygon_init(5, (Vector2[]){p1,p2,p3,p4,p5});
+  const Vector2 velocity = (Vector2){ .x = 0, .y = 0 };
 
+  ship.body = create_body(shape, position, velocity, -M_PI_2, 0, DRAG_FACTOR);
+  body_integrate(&ship.body, 1);
   return ship;
 }
 
 void move_ship(Ship *ship) {
-  ship->body.velocity = vector_add(ship->body.velocity, ship->acceleration);
-  move_body(&ship->body);
+  body_integrate(&ship->body, 1);
 }
 
 void fire_bullet(Bullets *bullet_mgr, const Ship *ship) {
@@ -101,7 +111,7 @@ void update_bullet(Bullets *bullet_mgr) {
         bullet_mgr->count--;
       }
       else {
-        move_body(&bullet_mgr->bullets[i].body);
+        body_integrate(&bullet_mgr->bullets[i].body, 1);
       }
   }
 }

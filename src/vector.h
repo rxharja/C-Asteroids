@@ -15,23 +15,16 @@ void vector_update(Vector2 *a, const Vector2 *b);
 
 Vector2 vector_rotate(Vector2 vector, double angle);
 
+Vector2 vector_scale(Vector2 vector, double scale);
+
 typedef struct {
-    Vector2 position; // centroid
-    double angle;
     Vector2 *offsets; // points defined relative to centroid
     Vector2 *world; //computed: position + rotated offsets
     size_t point_count;
 } Polygon;
 
-Polygon polygon_init(size_t point_count, Vector2 position, Vector2 offsets[], double angle);
-
-void update_world(const Polygon *polygon);
+Polygon polygon_init(size_t point_count, Vector2 offsets[]);
 
 void draw_polygon(SDL_Renderer *renderer, const Polygon *polygon);
 
 void polygon_destroy(const Polygon *poly);
-
-void polygon_translate(Polygon *polygon,  Vector2 velocity);
-
-void normalizeAngle(double *angle);
-
