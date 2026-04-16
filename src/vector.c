@@ -29,7 +29,6 @@ Polygon polygon_init(const size_t point_count, const Vector2 position, Vector2 o
     polygon.offsets = calloc(1, sizeof(Vector2) * point_count);
     polygon.world = calloc(1, sizeof(Vector2) * point_count);
 
-    // assign offsets
     memcpy(polygon.offsets, offsets, sizeof(Vector2) * point_count);
     update_world(&polygon);
 

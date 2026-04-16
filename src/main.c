@@ -2,6 +2,7 @@
 #include <math.h>
 #include <SDL2/SDL_events.h>
 #include <stdlib.h>
+#include <time.h>
 #include <SDL2/SDL.h>
 #include "config.h"
 #include "entities.h"
@@ -43,7 +44,7 @@ void destroy_app(GameState *app) {
     SDL_DestroyRenderer(app->renderer);
     SDL_DestroyWindow(app->window);
     SDL_Quit();
-    polygon_destroy(&app->ship.shape);
+    destroy_body(&app->ship.body);
     free(app);
 }
 
@@ -51,23 +52,23 @@ void handleKeyboard(Ship *ship, Bullets *bullets) {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
 
     if (state[SDL_SCANCODE_W]) {
-        ship->acceleration.x += ACCELERATION_MAGNITUDE * cos(ship->shape.angle);
-        ship->acceleration.y += ACCELERATION_MAGNITUDE * sin(ship->shape.angle);
+        ship->acceleration.x += ACCELERATION_MAGNITUDE * cos(ship->body.shape.angle);
+        ship->acceleration.y += ACCELERATION_MAGNITUDE * sin(ship->body.shape.angle);
     } else {
         ship->acceleration.x = 0;
         ship->acceleration.y = 0;
     }
 
     if (state[SDL_SCANCODE_A]) {
-        ship->shape.angle -= ANGLE_MAGNITUDE;
-        normalizeAngle(&ship->shape.angle);
-        update_world(&ship->shape);
+        ship->body.shape.angle -= ANGLE_MAGNITUDE;
+        normalizeAngle(&ship->body.shape.angle);
+        update_world(&ship->body.shape);
     }
 
     if (state[SDL_SCANCODE_D]) {
-        ship->shape.angle += ANGLE_MAGNITUDE;
-        normalizeAngle(&ship->shape.angle);
-        update_world(&ship->shape);
+        ship->body.shape.angle += ANGLE_MAGNITUDE;
+        normalizeAngle(&ship->body.shape.angle);
+        update_world(&ship->body.shape);
     }
 
     if (state[SDL_SCANCODE_SPACE]) {
@@ -112,15 +113,20 @@ void wrap_around_screen(Polygon *shape, const int screen_width, const int screen
 
 void draw_bullets(SDL_Renderer *renderer, Bullets *bullets) {
     for (int i = 0; i < bullets->count; i++) {
-        draw_polygon(renderer, &bullets->bullets[i].shape);
-        wrap_around_screen(&bullets->bullets[i].shape, WINDOW_WIDTH, WINDOW_WIDTH);
+        draw_polygon(renderer, &bullets->bullets[i].body.shape);
+        wrap_around_screen(&bullets->bullets[i].body.shape, WINDOW_WIDTH, WINDOW_WIDTH);
     }
+}
+
+void draw_asteroid(SDL_Renderer *renderer, Asteroid *a) {
+    draw_polygon(renderer, &a->body.shape);
 }
 
 
 int main(void) {
     GameState *app = init_app();
     Bullets bullets = {.cooldown = BULLET_COOLDOWN};
+    const Asteroids asteroids = create_asteroids();
 
     while (1) {
         SDL_Delay(5);
@@ -138,11 +144,18 @@ int main(void) {
         SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 255);
 
         move_ship(&app->ship);
-        wrap_around_screen(&app->ship.shape, WINDOW_WIDTH, WINDOW_WIDTH);
-        drag(&app->ship.velocity);
-        draw_polygon(app->renderer, &app->ship.shape);
+        wrap_around_screen(&app->ship.body.shape, WINDOW_WIDTH, WINDOW_WIDTH);
+        drag(&app->ship.body.velocity);
+        draw_polygon(app->renderer, &app->ship.body.shape);
         update_bullet(&bullets);
         draw_bullets(app->renderer, &bullets);
+        for (int i = 0; i < asteroids.count; i++) {
+            srand(time(NULL));
+            Asteroid a = asteroids.asteroids[i];
+            draw_asteroid(app->renderer, &a);
+            move_body(&a.body);
+            wrap_around_screen(&a.body.shape, WINDOW_WIDTH, WINDOW_WIDTH);
+        }
         SDL_RenderPresent(app->renderer);
     }
 
