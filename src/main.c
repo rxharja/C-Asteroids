@@ -52,11 +52,10 @@ void handleKeyboard(Ship *ship, Bullets *bullets) {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
 
     if (state[SDL_SCANCODE_W]) {
-        const Vector2 force = {
+        body_accelerate(&ship->body, (Vector2){
             .x = ACCELERATION_MAGNITUDE * cos(ship->body.angle),
             .y = ACCELERATION_MAGNITUDE * sin(ship->body.angle)
-        };
-        body_accelerate(&ship->body, force);
+        } );
     }
 
     if (state[SDL_SCANCODE_A]) {

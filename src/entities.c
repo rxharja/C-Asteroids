@@ -12,11 +12,11 @@ void create_bullet(Bullet *b, const Ship *ship, const double lifetime) {
   const Vector2 stop = {.x = nose.x + BULLET_SIZE, .y = nose.y };
   const Polygon shape = polygon_init(2, (Vector2[]){nose, stop});
   const Vector2 velocity = {
-    .x = 5 * cos(ship->body.angle),
-    .y = 5 * sin(ship->body.angle)
+    .x = BULLET_SPEED * cos(ship->body.angle),
+    .y = BULLET_SPEED * sin(ship->body.angle)
   };
 
-  b->body = create_body(shape, ship->body.position, velocity, -M_PI_2, 0, 1);
+  b->body = create_body(shape, ship->body.position, velocity, ship->body.angle, 0, 1);
   b->lifetime = lifetime;
 }
 
