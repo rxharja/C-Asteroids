@@ -91,11 +91,6 @@ void draw_bullets(SDL_Renderer *renderer, Bullets *bullets) {
     }
 }
 
-void draw_asteroid(SDL_Renderer *renderer, Asteroid *a) {
-    draw_polygon(renderer, &a->body.shape);
-}
-
-
 int main(void) {
     srand(time(NULL));
     GameState *app = init_app();
@@ -123,12 +118,14 @@ int main(void) {
         draw_polygon(app->renderer, &app->ship.body.shape);
         update_bullet(&bullets);
         draw_bullets(app->renderer, &bullets);
-        // for (int i = 0; i < asteroids.count; i++) {
-        //     Asteroid a = asteroids.asteroids[i];
-        //     draw_asteroid(app->renderer, &a);
-        //     body_integrate(&a.body, 1);
-        //     wrap_around_screen(&a.body, WINDOW_WIDTH, WINDOW_WIDTH);
-        // }
+
+        for (int i = 0; i < asteroids.count; i++) {
+            Asteroid *a = &asteroids.asteroids[i];
+            draw_polygon(app->renderer, &a->body.shape);
+            body_integrate(&a->body, 1);
+            wrap_around_screen(&a->body, WINDOW_WIDTH, WINDOW_WIDTH);
+        }
+
         SDL_RenderPresent(app->renderer);
     }
 

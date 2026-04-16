@@ -25,7 +25,7 @@ double random_float() {
 }
 
 Vector2 random_point(const double r, const double radian) {
-  const double radius = r * random_float();
+  const double radius = r * random_float() + r/2;
   return (Vector2) { .x = radius * cos(radian), .y = radius * sin(radian) };
 }
 
@@ -55,9 +55,9 @@ Asteroid create_asteroid(const double r) {
   asteroid.body = create_body(
     polygon_init(16, points),
     position,
-    (Vector2){.x = random_float() / 10, .y = random_float() / 10},
+    (Vector2){.x = random_float() / 6, .y = random_float() / 6},
     -M_PI_2,
-    .1,
+    .005,
     1
   );
 
