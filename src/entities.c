@@ -63,7 +63,7 @@ Asteroid create_asteroid(const double r) {
 
 void create_asteroids(Asteroids *asteroids) {
   for (int i = 0; i < ASTEROID_COUNT; i++) {
-    const Asteroid asteroid = create_asteroid(100 * random_float());
+    const Asteroid asteroid = create_asteroid(ASTEROID_RADIUS);
     asteroids->asteroids[i] = asteroid;
   }
 }

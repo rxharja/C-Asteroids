@@ -26,7 +26,7 @@ Vector2 vector_scale(Vector2 vector, const double scale) {
 }
 
 Vector2 random_vector(const double r, const double radian) {
-    const double radius = r * random_float() + r/2;
+    const double radius = random_range(r / 2, r);
     return (Vector2) { .x = radius * cos(radian), .y = radius * sin(radian) };
 }
 
