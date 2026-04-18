@@ -2,6 +2,7 @@
 #include "vector.h"
 
 #include "config.h"
+#include "random.h"
 
 Vector2 creat_vector2(const double x, const double y) {
     return (Vector2){ .x = x, .y = y, };
@@ -23,6 +24,12 @@ Vector2 vector_scale(Vector2 vector, const double scale) {
     if (fabs(vector.y) < EPSILON) vector.y = 0;
     return vector;
 }
+
+Vector2 random_vector(const double r, const double radian) {
+    const double radius = r * random_float() + r/2;
+    return (Vector2) { .x = radius * cos(radian), .y = radius * sin(radian) };
+}
+
 
 Polygon polygon_init(const size_t point_count, Vector2 offsets[]) {
     Polygon polygon = {0};

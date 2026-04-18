@@ -17,6 +17,8 @@ Vector2 vector_rotate(Vector2 vector, double angle);
 
 Vector2 vector_scale(Vector2 vector, double scale);
 
+Vector2 random_vector(double r, double radian);
+
 typedef struct {
     Vector2 *offsets; // points defined relative to centroid
     Vector2 *world; //computed: position + rotated offsets

@@ -2,10 +2,8 @@
 // Created by redonxharja on 9/11/24.
 //
 #include "entities.h"
-
-#include <time.h>
-
 #include "config.h"
+#include "random.h"
 
 void create_bullet(Bullet *b, const Ship *ship, const double lifetime) {
   const Vector2 nose = ship->body.shape.offsets[0];
@@ -20,44 +18,35 @@ void create_bullet(Bullet *b, const Ship *ship, const double lifetime) {
   b->lifetime = lifetime;
 }
 
-double random_float() {
-  return (double)rand() / (double)RAND_MAX;
-}
-
-Vector2 random_point(const double r, const double radian) {
-  const double radius = r * random_float() + r/2;
-  return (Vector2) { .x = radius * cos(radian), .y = radius * sin(radian) };
-}
-
 Asteroid create_asteroid(const double r) {
   Asteroid asteroid = {0};
   asteroid.radius = r;
   const Vector2 position = { .x = rand() % WINDOW_WIDTH, .y = rand() % WINDOW_WIDTH };
   Vector2 points[16] = {
-    random_point(r, 0),
-    random_point(r, M_PI/6),
-    random_point(r, M_PI/4),
-    random_point(r, M_PI/3),
-    random_point(r, M_PI_2),
-    random_point(r, M_PI_2 + M_PI / 6),
-    random_point(r, M_PI_2 + M_PI / 4),
-    random_point(r, M_PI_2 + M_PI / 3),
-    random_point(r, M_PI),
-    random_point(r, M_PI + M_PI / 6),
-    random_point(r, M_PI + M_PI / 4),
-    random_point(r, M_PI + M_PI / 3),
-    random_point(r, 3 * M_PI_2),
-    random_point(r, 3 * M_PI_2 + M_PI / 6),
-    random_point(r, 3 * M_PI_2 + M_PI / 4),
-    random_point(r, 3 * M_PI_2 + M_PI / 3),
+    random_vector(r, 0),
+    random_vector(r, M_PI/6),
+    random_vector(r, M_PI/4),
+    random_vector(r, M_PI/3),
+    random_vector(r, M_PI_2),
+    random_vector(r, M_PI_2 + M_PI / 6),
+    random_vector(r, M_PI_2 + M_PI / 4),
+    random_vector(r, M_PI_2 + M_PI / 3),
+    random_vector(r, M_PI),
+    random_vector(r, M_PI + M_PI / 6),
+    random_vector(r, M_PI + M_PI / 4),
+    random_vector(r, M_PI + M_PI / 3),
+    random_vector(r, 3 * M_PI_2),
+    random_vector(r, 3 * M_PI_2 + M_PI / 6),
+    random_vector(r, 3 * M_PI_2 + M_PI / 4),
+    random_vector(r, 3 * M_PI_2 + M_PI / 3),
   };
 
   asteroid.body = create_body(
     polygon_init(16, points),
     position,
-    (Vector2){.x = random_float() / 6, .y = random_float() / 6},
+    (Vector2){.x = random_range(-1, 1) / 2., .y = random_range(-1, 1) / 2.},
     -M_PI_2,
-    .005,
+    random_int_choice(-1, 1) * .005,
     1
   );
 
