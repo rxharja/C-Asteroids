@@ -5,48 +5,54 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
+#include "config.h"
 #include "vector.h"
 #include "physics.h"
 
-typedef struct Bullet {
+typedef struct Entity {
   Body body;
+  int valid; // tracks lifecycle of entity.
+} Entity;
+
+typedef struct Bullet {
+  Entity entity;
   double lifetime;
 } Bullet;
 
 typedef struct Bullets {
-  size_t count;
-  Bullet bullets[16];
+  Bullet bullets[BULLET_COUNT];
   Uint32 cooldown;
   Uint32 last_shot;
 } Bullets;
 
 typedef struct Ship {
-  Body body;
+  Entity entity;
 } Ship;
 
 typedef struct Asteroid {
-  Body body;
+  Entity entity;
   double radius;
 } Asteroid;
 
 typedef struct Asteroids {
   size_t count;
-  Asteroid asteroids[16];
+  Asteroid asteroids[ASTEROID_COUNT];
 } Asteroids;
 
 
+// bullets
 void create_bullet(Bullet* b, const Ship *ship, double lifetime);
 
+void fire_bullet(Bullets *bullet_mgr, const Ship *ship);
+
+void degrade_bullet(Bullet *b);
+
+// asteroids
 Asteroid create_asteroid(double r);
 
 void create_asteroids(Asteroids *asteroids);
 
-void fire_bullet(Bullets *bullet_mgr, const Ship *ship);
-
-void update_bullet(Bullets *bullet_mgr);
-
+// ship
 Ship init_ship(void);
-
-void move_ship(Ship *ship);
 
 #endif //ENTITIES_H

@@ -6,15 +6,17 @@
 #include "random.h"
 
 void create_bullet(Bullet *b, const Ship *ship, const double lifetime) {
-  const Vector2 nose = ship->body.shape.offsets[0];
+  const Body ship_body = ship->entity.body;
+  const Vector2 nose = ship_body.shape.offsets[0];
   const Vector2 stop = {.x = nose.x + BULLET_SIZE, .y = nose.y };
   const Polygon shape = polygon_init(2, (Vector2[]){nose, stop});
   const Vector2 velocity = {
-    .x = BULLET_SPEED * cos(ship->body.angle),
-    .y = BULLET_SPEED * sin(ship->body.angle)
+    .x = BULLET_SPEED * cos(ship_body.angle),
+    .y = BULLET_SPEED * sin(ship_body.angle)
   };
 
-  b->body = create_body(shape, ship->body.position, velocity, ship->body.angle, 0, 1);
+  b->entity.body = create_body(shape, ship_body.position, velocity, ship_body.angle, 0, 1);
+  b->entity.valid = 1;
   b->lifetime = lifetime;
 }
 
@@ -41,7 +43,7 @@ Asteroid create_asteroid(const double r) {
     random_vector(r, 3 * M_PI_2 + M_PI / 3),
   };
 
-  asteroid.body = create_body(
+  asteroid.entity.body = create_body(
     polygon_init(16, points),
     position,
     (Vector2){.x = random_range(-1, 1) / 2., .y = random_range(-1, 1) / 2.},
@@ -50,11 +52,12 @@ Asteroid create_asteroid(const double r) {
     1
   );
 
+  asteroid.entity.valid = 1;
+
   return asteroid;
 }
 
 void create_asteroids(Asteroids *asteroids) {
-  asteroids->count = 8;
   for (int i = 0; i < asteroids->count; i++) {
     const Asteroid asteroid = create_asteroid(100 * random_float());
     asteroids->asteroids[i] = asteroid;
@@ -74,33 +77,23 @@ Ship init_ship(void) {
   const Polygon shape = polygon_init(5, (Vector2[]){p1,p2,p3,p4,p5});
   const Vector2 velocity = (Vector2){ .x = 0, .y = 0 };
 
-  ship.body = create_body(shape, position, velocity, -M_PI_2, 0, DRAG_FACTOR);
-  body_integrate(&ship.body, 1);
+  ship.entity.body = create_body(shape, position, velocity, -M_PI_2, 0, DRAG_FACTOR);
+  ship.entity.valid = 1;
+  body_integrate(&ship.entity.body, 1);
   return ship;
 }
 
-void move_ship(Ship *ship) {
-  body_integrate(&ship->body, 1);
-}
-
 void fire_bullet(Bullets *bullet_mgr, const Ship *ship) {
-  if (bullet_mgr->count < BULLET_COUNT) {
-    Bullet *b = &bullet_mgr->bullets[bullet_mgr->count];
+  for (int i = 0; i < BULLET_COUNT; i++) {
+    Bullet *b = &bullet_mgr->bullets[i];
+    if (b->entity.valid) continue;
     create_bullet(b, ship, BULLET_LIFETIME);
-    bullet_mgr->count++;
+    break;
   }
 }
 
-void update_bullet(Bullets *bullet_mgr) {
-    for (int i = 0; i < bullet_mgr->count; i++) {
-      Bullet *b = &bullet_mgr->bullets[i];
-      b->lifetime--;
-      if (bullet_mgr->bullets[i].lifetime <= 0) {
-        bullet_mgr->bullets[i] = bullet_mgr->bullets[bullet_mgr->count - 1];
-        bullet_mgr->count--;
-      }
-      else {
-        body_integrate(&bullet_mgr->bullets[i].body, 1);
-      }
-  }
+void degrade_bullet(Bullet *b) {
+    if (!b->entity.valid) return;
+    b->lifetime--;
+    if (b->lifetime <= 0) b->entity.valid = 0;
 }
