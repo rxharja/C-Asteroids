@@ -45,12 +45,16 @@ void create_bullet(Bullet* b, const Ship *ship, double lifetime);
 
 void fire_bullet(Bullets *bullet_mgr, const Ship *ship);
 
-void degrade_bullet(Bullet *b);
+void degrade_bullet(Bullet *b, double dt);
+
+void destroy_bullets(const Bullets *Bullets);
 
 // asteroids
 Asteroid create_asteroid(double r);
 
 void create_asteroids(Asteroids *asteroids);
+
+void destroy_asteroids(const Asteroids *asteroids);
 
 // ship
 Ship init_ship(void);

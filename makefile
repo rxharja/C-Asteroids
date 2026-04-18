@@ -10,11 +10,11 @@ all: $(OBJECTS)
 ./build/main.o: src/main.c
 	gcc ${FLAGS} ${INCLUDES} ${SDL} ./src/main.c -c -o ./build/main.o
 
-./build/entities.o: src/entities.c
+./build/entities.o: src/entities.c ./src/config.h
 	gcc ${FLAGS} ${INCLUDES} ${SDL} ./src/entities.c -c -o ./build/entities.o
 
-./build/vector.o: src/vector.c
-	gcc ${FLAGS} ${INCLUDES} ${SDL} ./src/vector.c -c -o ./build/vector.o
+./build/vector.o: src/vector.c ./src/config.h
+	gcc ${FLAGS} ${INCLUDES} ${SDL} ./src/vector.c  -c -o ./build/vector.o
 
 ./build/physics.o: src/physics.c
 	gcc ${FLAGS} ${INCLUDES} ${SDL} ./src/physics.c -c -o ./build/physics.o
@@ -22,7 +22,7 @@ all: $(OBJECTS)
 ./build/random.o: src/random.c
 	gcc ${FLAGS} ${INCLUDES} ${SDL} ./src/random.c -c -o ./build/random.o
 
-./build/gamestate.o: src/gamestate.c
+./build/gamestate.o: src/gamestate.c ./src/config.h
 	gcc ${FLAGS} ${INCLUDES} ${SDL} ./src/gamestate.c -c -o ./build/gamestate.o
 
 clean:

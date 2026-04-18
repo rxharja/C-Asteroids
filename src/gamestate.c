@@ -3,7 +3,6 @@
 //
 
 #include "gamestate.h"
-
 #include "config.h"
 
 GameState *init_app(void) {
@@ -26,15 +25,13 @@ GameState *init_app(void) {
         windowFlags);
 
     app->renderer = SDL_CreateRenderer(app->window, -1, rendererFlags);
-
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
 
     app->asteroids = (Asteroids){ .count = ASTEROID_COUNT };
     create_asteroids(&app->asteroids);
-
     app->bullets = (Bullets){ .cooldown = BULLET_COOLDOWN };
-
     app->ship = init_ship();
+    app-> last_tick = SDL_GetTicks();
 
     return app;
 }
@@ -48,14 +45,14 @@ void wrap_around_screen(Body *body, const int screen_width, const int screen_hei
     body_set_position(body, pos);
 }
 
-void try_update_entity(SDL_Renderer *renderer, Entity *entity) {
+void try_update_entity(SDL_Renderer *renderer, Entity *entity, const double dt) {
     if (!entity->valid) return;
-    body_integrate(&entity->body, 1);
+    body_integrate(&entity->body, dt);
     wrap_around_screen(&entity->body, WINDOW_WIDTH, WINDOW_WIDTH);
     draw_polygon(renderer, &entity->body.shape);
 }
 
-void handleKeyboard(Ship *ship, Bullets *bullets) {
+void handleKeyboard(Ship *ship, Bullets *bullets, const double dt) {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
     Body *ship_body = &ship->entity.body;
 
@@ -65,8 +62,10 @@ void handleKeyboard(Ship *ship, Bullets *bullets) {
             .y = ACCELERATION_MAGNITUDE * sin(ship_body->angle)
         } );
     }
-    if (state[SDL_SCANCODE_A]) ship_body->angle -= ANGLE_MAGNITUDE;
-    if (state[SDL_SCANCODE_D]) ship_body->angle += ANGLE_MAGNITUDE;
+
+    if (state[SDL_SCANCODE_A]) ship_body->angle -= dt * ANGLE_MAGNITUDE;
+
+    if (state[SDL_SCANCODE_D]) ship_body->angle += dt * ANGLE_MAGNITUDE;
 
     if (state[SDL_SCANCODE_SPACE]) {
         const Uint32 now = SDL_GetTicks();
@@ -77,23 +76,33 @@ void handleKeyboard(Ship *ship, Bullets *bullets) {
     }
 }
 
+double update_ticks(GameState *state) {
+    const Uint32 now = SDL_GetTicks();
+    const double dt = (now - state->last_tick) / 1000.0;
+    state->last_tick = now;
+    return dt;
+}
+
 void update(GameState *game_state) {
     SDL_SetRenderDrawColor(game_state->renderer, 0, 0, 0, 255);
     SDL_RenderClear(game_state->renderer);
     SDL_SetRenderDrawColor(game_state->renderer, 255, 255, 255, 255);
+
+    const double dt = update_ticks(game_state);
     Ship *ship = &game_state->ship;
     Bullets *bullets = &game_state->bullets;
     Asteroids *asteroids = &game_state->asteroids;
 
-    handleKeyboard(ship, bullets);
-    try_update_entity(game_state->renderer, &ship->entity);
+    handleKeyboard(ship, bullets, dt);
+
+    try_update_entity(game_state->renderer, &ship->entity, dt);
 
     for (int i = 0; i < BULLET_COUNT; i++) {
-        try_update_entity(game_state->renderer, &bullets->bullets[i].entity);
-        degrade_bullet(&bullets->bullets[i]);
+        try_update_entity(game_state->renderer, &bullets->bullets[i].entity, dt);
+        degrade_bullet(&bullets->bullets[i], dt);
     }
 
-    for (int i = 0; i < ASTEROID_COUNT; i++) try_update_entity(game_state->renderer, &asteroids->asteroids[i].entity);
+    for (int i = 0; i < ASTEROID_COUNT; i++) try_update_entity(game_state->renderer, &asteroids->asteroids[i].entity, dt);
 
     SDL_RenderPresent(game_state->renderer);
 }
@@ -102,6 +111,8 @@ void destroy_app(GameState *app) {
     SDL_DestroyRenderer(app->renderer);
     SDL_DestroyWindow(app->window);
     SDL_Quit();
+    destroy_bullets(&app->bullets);
+    destroy_asteroids(&app->asteroids);
     destroy_body(&app->ship.entity.body);
     free(app);
 }

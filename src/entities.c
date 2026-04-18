@@ -6,6 +6,7 @@
 #include "random.h"
 
 void create_bullet(Bullet *b, const Ship *ship, const double lifetime) {
+  destroy_body(&b->entity.body);
   const Body ship_body = ship->entity.body;
   const Vector2 nose = ship_body.shape.offsets[0];
   const Vector2 stop = {.x = nose.x + BULLET_SIZE, .y = nose.y };
@@ -15,7 +16,7 @@ void create_bullet(Bullet *b, const Ship *ship, const double lifetime) {
     .y = BULLET_SPEED * sin(ship_body.angle)
   };
 
-  b->entity.body = create_body(shape, ship_body.position, velocity, ship_body.angle, 0, 1);
+  b->entity.body = create_body(shape, ship_body.position, velocity, ship_body.angle, 0, BULLET_DRAG);
   b->entity.valid = 1;
   b->lifetime = lifetime;
 }
@@ -46,10 +47,13 @@ Asteroid create_asteroid(const double r) {
   asteroid.entity.body = create_body(
     polygon_init(16, points),
     position,
-    (Vector2){.x = random_range(-1, 1) / 2., .y = random_range(-1, 1) / 2.},
+    (Vector2) {
+      .x = random_int_choice(-1, 1) / ASTEROID_VELOCITY_FACTOR,
+      .y = random_int_choice(-1, 1) / ASTEROID_VELOCITY_FACTOR
+    },
     -M_PI_2,
-    random_int_choice(-1, 1) * .005,
-    1
+    random_int_choice(-1, 1) * ASTEROID_ANGULAR_VELOCITY,
+    ASTEROID_DRAG
   );
 
   asteroid.entity.valid = 1;
@@ -58,7 +62,7 @@ Asteroid create_asteroid(const double r) {
 }
 
 void create_asteroids(Asteroids *asteroids) {
-  for (int i = 0; i < asteroids->count; i++) {
+  for (int i = 0; i < ASTEROID_COUNT; i++) {
     const Asteroid asteroid = create_asteroid(100 * random_float());
     asteroids->asteroids[i] = asteroid;
   }
@@ -92,8 +96,20 @@ void fire_bullet(Bullets *bullet_mgr, const Ship *ship) {
   }
 }
 
-void degrade_bullet(Bullet *b) {
+void degrade_bullet(Bullet *b, const double dt) {
     if (!b->entity.valid) return;
-    b->lifetime--;
+    b->lifetime -= dt;
     if (b->lifetime <= 0) b->entity.valid = 0;
+}
+
+void destroy_bullets(const Bullets *bullets) {
+  for (int i = 0; i < BULLET_COUNT; i++) {
+    destroy_body(&bullets->bullets[i].entity.body);
+  }
+}
+
+void destroy_asteroids(const Asteroids *Asteroids) {
+  for (int i = 0; i < ASTEROID_COUNT; i++) {
+    destroy_body(&Asteroids->asteroids[i].entity.body);
+  }
 }

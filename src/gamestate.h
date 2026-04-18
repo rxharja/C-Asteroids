@@ -16,6 +16,7 @@ typedef struct {
     Ship ship;
     Asteroids asteroids;
     Bullets bullets;
+    Uint32 last_tick;
 } GameState;
 
 GameState *init_app(void);

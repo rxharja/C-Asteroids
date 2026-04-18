@@ -1,11 +1,7 @@
-#include <SDL2/SDL_render.h>
-#include <math.h>
 #include <SDL2/SDL_events.h>
 #include <stdlib.h>
 #include <time.h>
 #include <SDL2/SDL.h>
-#include "config.h"
-#include "entities.h"
 #include "gamestate.h"
 
 

@@ -26,7 +26,7 @@ Body create_body(const Polygon shape, const Vector2 position, const Vector2 velo
 // update position, angle, and then world shapes
 void body_integrate(Body *body, const double dt) {
     body->velocity = vector_add(body->velocity, vector_scale(body->acceleration, dt));
-    body->velocity = vector_scale(body->velocity, body->drag);
+    body->velocity = vector_scale(body->velocity, pow(body->drag, dt));
     body->position = vector_add(body->position, vector_scale(body->velocity, dt));
     body->angle += body->angular_velocity * dt;
     body->acceleration = (Vector2){0};
@@ -48,7 +48,6 @@ void body_accelerate(Body *body, const Vector2 acceleration) {
 
 void destroy_body(const Body *body) {
     polygon_destroy(&body->shape);
-    // free(body);
 }
 
 void normalize_angle(double *angle) {
