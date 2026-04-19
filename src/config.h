@@ -5,16 +5,19 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-//render
-#define WINDOW_WIDTH 1200
+/*--render--*/
+#define WINDOW_WIDTH 1600
+#define WINDOW_HEIGHT 1200
 
-// physics
+/*--physics--*/
 #define DRAG_FACTOR .2
 #define EPSILON 0.02
 #define ACCELERATION_MAGNITUDE 3000
 #define ANGLE_MAGNITUDE 7
 
-// entities
+/*--entities-- */
+
+// bullets
 #define BULLET_COUNT 16
 #define BULLET_COOLDOWN 250
 #define BULLET_LIFETIME 0.5
@@ -22,6 +25,7 @@
 #define BULLET_SPEED 1500
 #define BULLET_DRAG 1
 
+// asteroids
 #define ASTEROID_COUNT 8
 #define ASTEROID_POLYGON_COUNT 16
 #define ASTEROID_ANGULAR_VELOCITY .2

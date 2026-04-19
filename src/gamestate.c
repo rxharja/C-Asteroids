@@ -21,7 +21,7 @@ GameState *init_app(void) {
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         WINDOW_WIDTH,
-        WINDOW_WIDTH,
+        WINDOW_HEIGHT,
         windowFlags);
 
     app->renderer = SDL_CreateRenderer(app->window, -1, rendererFlags);
@@ -47,7 +47,7 @@ void wrap_around_screen(Body *body, const int screen_width, const int screen_hei
 
 void try_update_entity(SDL_Renderer *renderer, Entity *entity, const double dt) {
     if (!entity->valid) return;
-    wrap_around_screen(&entity->body, WINDOW_WIDTH, WINDOW_WIDTH);
+    wrap_around_screen(&entity->body, WINDOW_WIDTH, WINDOW_HEIGHT);
     body_integrate(&entity->body, dt);
     draw_polygon(renderer, &entity->body.shape);
 }

@@ -24,7 +24,7 @@ void create_bullet(Bullet *b, const Ship *ship, const double lifetime) {
 Asteroid create_asteroid(const double r) {
   Asteroid asteroid = {0};
   asteroid.radius = r;
-  const Vector2 position = { .x = rand() % WINDOW_WIDTH, .y = rand() % WINDOW_WIDTH };
+  const Vector2 position = { .x = rand() % WINDOW_WIDTH, .y = rand() % WINDOW_HEIGHT };
 
   const double angle_inc =  2 * M_PI / ASTEROID_POLYGON_COUNT;
 
@@ -62,7 +62,7 @@ void create_asteroids(Asteroids *asteroids) {
 Ship init_ship(void) {
   Ship ship = {0};
 
-  const Vector2 position = { .x = WINDOW_WIDTH / 2, .y = WINDOW_WIDTH / 2 };
+  const Vector2 position = { .x = WINDOW_WIDTH / 2., .y = WINDOW_HEIGHT / 2. };
   const Vector2 p1 = { .x = 70,  .y = 0 };    // nose — now +X
   const Vector2 p2 = { .x = -30, .y = -50 };
   const Vector2 p3 = { .x = -5,  .y = -25 };
@@ -99,8 +99,8 @@ void destroy_bullets(const Bullets *bullets) {
   }
 }
 
-void destroy_asteroids(const Asteroids *Asteroids) {
+void destroy_asteroids(const Asteroids *asteroids) {
   for (int i = 0; i < ASTEROID_COUNT; i++) {
-    destroy_body(&Asteroids->asteroids[i].entity.body);
+    destroy_body(&asteroids->asteroids[i].entity.body);
   }
 }

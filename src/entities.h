@@ -47,7 +47,7 @@ void fire_bullet(Bullets *bullet_mgr, const Ship *ship);
 
 void degrade_bullet(Bullet *b, double dt);
 
-void destroy_bullets(const Bullets *Bullets);
+void destroy_bullets(const Bullets *bullets);
 
 // asteroids
 Asteroid create_asteroid(double r);
