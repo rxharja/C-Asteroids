@@ -25,31 +25,22 @@ Asteroid create_asteroid(const double r) {
   Asteroid asteroid = {0};
   asteroid.radius = r;
   const Vector2 position = { .x = rand() % WINDOW_WIDTH, .y = rand() % WINDOW_WIDTH };
-  Vector2 points[16] = {
-    random_vector(r, 0),
-    random_vector(r, M_PI/6),
-    random_vector(r, M_PI/4),
-    random_vector(r, M_PI/3),
-    random_vector(r, M_PI_2),
-    random_vector(r, M_PI_2 + M_PI / 6),
-    random_vector(r, M_PI_2 + M_PI / 4),
-    random_vector(r, M_PI_2 + M_PI / 3),
-    random_vector(r, M_PI),
-    random_vector(r, M_PI + M_PI / 6),
-    random_vector(r, M_PI + M_PI / 4),
-    random_vector(r, M_PI + M_PI / 3),
-    random_vector(r, 3 * M_PI_2),
-    random_vector(r, 3 * M_PI_2 + M_PI / 6),
-    random_vector(r, 3 * M_PI_2 + M_PI / 4),
-    random_vector(r, 3 * M_PI_2 + M_PI / 3),
-  };
+
+  const double angle_inc =  2 * M_PI / ASTEROID_POLYGON_COUNT;
+
+  Vector2 points[ASTEROID_POLYGON_COUNT] = {};
+  double current_angle = 0;
+  for (int i = 0; i < ASTEROID_POLYGON_COUNT; i++) {
+    points[i] = random_vector(r, current_angle);
+    current_angle += angle_inc;
+  }
 
   asteroid.entity.body = create_body(
-    polygon_init(16, points),
+    polygon_init(ASTEROID_POLYGON_COUNT, points),
     position,
     (Vector2) {
-      .x = random_int_choice(-1, 1) / ASTEROID_VELOCITY_FACTOR,
-      .y = random_int_choice(-1, 1) / ASTEROID_VELOCITY_FACTOR
+      .x = random_range(-ASTEROID_VELOCITY_FACTOR, ASTEROID_VELOCITY_FACTOR),
+      .y = random_range(-ASTEROID_VELOCITY_FACTOR, ASTEROID_VELOCITY_FACTOR),
     },
     -M_PI_2,
     random_int_choice(-1, 1) * ASTEROID_ANGULAR_VELOCITY,
