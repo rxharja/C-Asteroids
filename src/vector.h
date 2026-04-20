@@ -1,15 +1,15 @@
 #pragma once
 
-#include <SDL2/SDL.h>
-
 typedef struct {
     double x;
     double y;
 } Vector2;
 
-Vector2 creat_vector2(double x, double y);
+Vector2 create_vector2(double x, double y);
 
 Vector2 vector_add(Vector2 a, Vector2 b);
+
+Vector2 vector_sub(Vector2 a, Vector2 b);
 
 void vector_update(Vector2 *a, const Vector2 *b);
 
@@ -19,14 +19,10 @@ Vector2 vector_scale(Vector2 vector, double scale);
 
 Vector2 random_vector(double r, double radian);
 
-typedef struct {
-    Vector2 *offsets; // points defined relative to centroid
-    Vector2 *world; //computed: position + rotated offsets
-    size_t point_count;
-} Polygon;
+double vector_dot(Vector2 a, Vector2 b);
 
-Polygon polygon_init(size_t point_count, Vector2 offsets[]);
+Vector2 vector_perpendicular(Vector2 v);
 
-void draw_polygon(SDL_Renderer *renderer, const Polygon *polygon);
+Vector2 vector_normal(Vector2 v1, Vector2 v2);
 
-void polygon_destroy(const Polygon *poly);
+double vector_euclidean_distance(Vector2 v1, Vector2 v2);

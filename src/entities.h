@@ -56,6 +56,8 @@ void create_asteroids(Asteroids *asteroids);
 
 void destroy_asteroids(const Asteroids *asteroids);
 
+void check_asteroids_collision(Asteroids *asteroids);
+
 // ship
 Ship init_ship(void);
 

@@ -2,7 +2,7 @@ INCLUDES = -I ./src
 FLAGS = -O1 -g -D_GNU_SOURCE=1 -D_THREAD_SAFE
 SDL = $(shell sdl2-config --cflags)
 LDLFLAGS = $(shell sdl2-config --libs)
-OBJECTS = ./build/main.o ./build/entities.o ./build/vector.o ./build/physics.o ./build/random.o ./build/gamestate.o
+OBJECTS = ./build/main.o ./build/entities.o ./build/vector.o ./build/physics.o ./build/random.o ./build/gamestate.o ./build/polygon.o
 
 all: $(OBJECTS)
 	gcc ${FLAGS} ${INCLUDES} ${SDL} ${OBJECTS} -o ./bin/asteroids $(LDLFLAGS) -lm
@@ -15,6 +15,9 @@ all: $(OBJECTS)
 
 ./build/vector.o: src/vector.c ./src/config.h
 	gcc ${FLAGS} ${INCLUDES} ${SDL} ./src/vector.c  -c -o ./build/vector.o
+
+./build/polygon.o: src/polygon.c
+	gcc ${FLAGS} ${INCLUDES} ${SDL} ./src/polygon.c  -c -o ./build/polygon.o
 
 ./build/physics.o: src/physics.c
 	gcc ${FLAGS} ${INCLUDES} ${SDL} ./src/physics.c -c -o ./build/physics.o

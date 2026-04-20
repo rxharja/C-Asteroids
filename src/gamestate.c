@@ -2,8 +2,10 @@
 // Created by redonxharja on 4/18/26.
 //
 
+#include <SDL2/SDL.h>
 #include "gamestate.h"
 #include "config.h"
+#include "polygon.h"
 
 GameState *init_app(void) {
     const int rendererFlags = SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED;
@@ -102,7 +104,10 @@ void update(GameState *game_state) {
         degrade_bullet(&bullets->bullets[i], dt);
     }
 
-    for (int i = 0; i < ASTEROID_COUNT; i++) try_update_entity(game_state->renderer, &asteroids->asteroids[i].entity, dt);
+    check_asteroids_collision(asteroids);
+    for (int i = 0; i < ASTEROID_COUNT; i++) {
+        try_update_entity(game_state->renderer, &asteroids->asteroids[i].entity, dt);
+    }
 
     SDL_RenderPresent(game_state->renderer);
 }

@@ -3,6 +3,7 @@
 //
 #include "entities.h"
 #include "config.h"
+#include "polygon.h"
 #include "random.h"
 
 void create_bullet(Bullet *b, const Ship *ship, const double lifetime) {
@@ -58,6 +59,23 @@ void create_asteroids(Asteroids *asteroids) {
     asteroids->asteroids[i] = asteroid;
   }
 }
+
+void try_collide_asteroids(Asteroid *a, Asteroid *b) {
+  if (!a->entity.valid || !b->entity.valid) return;
+  if (!is_colliding_sat(&a->entity.body, &b->entity.body)) return;
+  collision_elastic(&a->entity.body, &b->entity.body);
+}
+
+void check_asteroids_collision(Asteroids *asteroids) {
+  for (int i = 0; i < ASTEROID_COUNT - 1; i++) {
+    for (int j = i + 1; j < ASTEROID_COUNT; j++) {
+      Asteroid *a = &asteroids->asteroids[i];
+      Asteroid *b = &asteroids->asteroids[j];
+      try_collide_asteroids(a, b);
+    }
+  }
+}
+
 
 Ship init_ship(void) {
   Ship ship = {0};
