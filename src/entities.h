@@ -36,7 +36,7 @@ typedef struct Asteroid {
 
 typedef struct Asteroids {
   size_t count;
-  Asteroid asteroids[ASTEROID_COUNT];
+  Asteroid asteroids[ASTEROID_COUNT_MAX];
 } Asteroids;
 
 
@@ -56,7 +56,10 @@ void create_asteroids(Asteroids *asteroids);
 
 void destroy_asteroids(const Asteroids *asteroids);
 
+// collisions
 void check_asteroids_collision(Asteroids *asteroids);
+
+void check_bullet_collision(Bullets *bullets, Asteroids *asteroids);
 
 // ship
 Ship init_ship(void);

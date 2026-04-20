@@ -17,7 +17,7 @@ void create_bullet(Bullet *b, const Ship *ship, const double lifetime) {
     .y = BULLET_SPEED * sin(ship_body.angle)
   };
 
-  b->entity.body = create_body(shape, ship_body.position, velocity, ship_body.angle, 0, BULLET_DRAG);
+  b->entity.body = create_body(shape, ship_body.position, velocity, ship_body.angle, 0, BULLET_DRAG, 1);
   b->entity.valid = 1;
   b->lifetime = lifetime;
 }
@@ -43,9 +43,8 @@ Asteroid create_asteroid(const double r) {
       .x = random_range(-ASTEROID_VELOCITY_FACTOR, ASTEROID_VELOCITY_FACTOR),
       .y = random_range(-ASTEROID_VELOCITY_FACTOR, ASTEROID_VELOCITY_FACTOR),
     },
-    -M_PI_2,
-    random_int_choice(-1, 1) * ASTEROID_ANGULAR_VELOCITY,
-    ASTEROID_DRAG
+    -M_PI_2, random_int_choice(-1, 1) * ASTEROID_ANGULAR_VELOCITY,
+    ASTEROID_DRAG, r
   );
 
   asteroid.entity.valid = 1;
@@ -54,7 +53,7 @@ Asteroid create_asteroid(const double r) {
 }
 
 void create_asteroids(Asteroids *asteroids) {
-  for (int i = 0; i < ASTEROID_COUNT; i++) {
+  for (int i = 0; i < ASTEROID_COUNT_MIN; i++) {
     const Asteroid asteroid = create_asteroid(ASTEROID_RADIUS);
     asteroids->asteroids[i] = asteroid;
   }
@@ -67,8 +66,8 @@ void try_collide_asteroids(Asteroid *a, Asteroid *b) {
 }
 
 void check_asteroids_collision(Asteroids *asteroids) {
-  for (int i = 0; i < ASTEROID_COUNT - 1; i++) {
-    for (int j = i + 1; j < ASTEROID_COUNT; j++) {
+  for (int i = 0; i < ASTEROID_COUNT_MAX - 1; i++) {
+    for (int j = i + 1; j < ASTEROID_COUNT_MAX; j++) {
       Asteroid *a = &asteroids->asteroids[i];
       Asteroid *b = &asteroids->asteroids[j];
       try_collide_asteroids(a, b);
@@ -76,6 +75,40 @@ void check_asteroids_collision(Asteroids *asteroids) {
   }
 }
 
+void split_asteroid(Asteroids *asteroids, const int a_idx) {
+  Asteroid *a = &asteroids->asteroids[a_idx];
+  Vector2 pos = a->entity.body.position;
+  const double r = a->radius;
+  a->entity.valid = 0;
+
+  if (r < ASTEROID_DESTROY_RADIUS) return;
+
+  int added = 0;
+  for (int i = 0; i < ASTEROID_COUNT_MAX; i++) {
+    if (added >= 2) break;
+    if (asteroids->asteroids[i].entity.valid) continue;
+    asteroids->asteroids[i] = create_asteroid(r / 2.);
+    asteroids->asteroids[i].entity.body.position = pos;
+    added++;
+  }
+}
+
+void try_collide_bullet(Bullet *b, Asteroids *asteroids, const int a_idx) {
+  const Asteroid *a = &asteroids->asteroids[a_idx];
+  if (!a->entity.valid || !b->entity.valid) return;
+  if (!is_colliding_sat(&b->entity.body,&a->entity.body)) return;
+  b->entity.valid = 0;
+  split_asteroid(asteroids, a_idx);
+}
+
+void check_bullet_collision(Bullets *bullets, Asteroids *asteroids) {
+  for (int i = 0; i < BULLET_COUNT; i++) {
+    Bullet *b = &bullets->bullets[i];
+    for (int j = 0; j < ASTEROID_COUNT_MAX; j++) {
+      try_collide_bullet(b, asteroids, j);
+    }
+  }
+}
 
 Ship init_ship(void) {
   Ship ship = {0};
@@ -90,7 +123,7 @@ Ship init_ship(void) {
   const Polygon shape = polygon_init(5, (Vector2[]){p1,p2,p3,p4,p5});
   const Vector2 velocity = (Vector2){ .x = 0, .y = 0 };
 
-  ship.entity.body = create_body(shape, position, velocity, -M_PI_2, 0, DRAG_FACTOR);
+  ship.entity.body = create_body(shape, position, velocity, -M_PI_2, 0, DRAG_FACTOR, 1);
   ship.entity.valid = 1;
   body_integrate(&ship.entity.body, 1);
   return ship;
@@ -118,7 +151,7 @@ void destroy_bullets(const Bullets *bullets) {
 }
 
 void destroy_asteroids(const Asteroids *asteroids) {
-  for (int i = 0; i < ASTEROID_COUNT; i++) {
+  for (int i = 0; i < ASTEROID_COUNT_MAX; i++) {
     destroy_body(&asteroids->asteroids[i].entity.body);
   }
 }

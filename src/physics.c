@@ -13,7 +13,7 @@ void update_world(const Body *body) {
 }
 
 Body create_body(const Polygon shape, const Vector2 position, const Vector2 velocity, const double angle,
-                 const double angular_velocity, const double drag) {
+                 const double angular_velocity, const double drag, const double mass) {
     Body b = {0};
     b.shape = shape;
     b.position = position;
@@ -22,6 +22,7 @@ Body create_body(const Polygon shape, const Vector2 position, const Vector2 velo
     b.angle = angle;
     b.angular_velocity = angular_velocity;
     b.drag = drag;
+    b.mass = mass;
     return b;
 }
 
@@ -61,14 +62,18 @@ int is_colliding_sat(const Body *a, const Body *b) {
 }
 
 void collision_elastic(Body *a, Body *b) {
+    const double total_mass = a->mass + b->mass;
     const Vector2 normal = vector_normal(a->position, b->position);
     const double proj_a = vector_dot(a->velocity, normal);
     const double proj_b = vector_dot(b->velocity, normal);
     a->position = vector_add(a->position, normal);
     b->position = vector_sub(b->position, normal);
-    a->velocity = vector_add(vector_sub(a->velocity, vector_scale(normal, proj_a)), vector_scale(normal, proj_b));
-    b->velocity = vector_add(vector_sub(b->velocity, vector_scale(normal, proj_b)), vector_scale(normal, proj_a));
-}
+    a->velocity = vector_add(
+        vector_sub(a->velocity, vector_scale(normal, proj_a)),
+        vector_scale(normal, (2 * b->mass * proj_b + (a->mass - b->mass) * proj_a) / total_mass));
+    b->velocity = vector_add(
+        vector_sub(b->velocity, vector_scale(normal, proj_b)),
+        vector_scale(normal, (2 * a->mass * proj_a + (b->mass - a->mass) * proj_b) / total_mass));}
 
 
 void destroy_body(const Body *body) {

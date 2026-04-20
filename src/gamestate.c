@@ -29,7 +29,7 @@ GameState *init_app(void) {
     app->renderer = SDL_CreateRenderer(app->window, -1, rendererFlags);
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
 
-    app->asteroids = (Asteroids){ .count = ASTEROID_COUNT };
+    app->asteroids = (Asteroids){ .count = ASTEROID_COUNT_MAX };
     create_asteroids(&app->asteroids);
     app->bullets = (Bullets){ .cooldown = BULLET_COOLDOWN };
     app->ship = init_ship();
@@ -105,7 +105,9 @@ void update(GameState *game_state) {
     }
 
     check_asteroids_collision(asteroids);
-    for (int i = 0; i < ASTEROID_COUNT; i++) {
+    check_bullet_collision(bullets, asteroids);
+
+    for (int i = 0; i < ASTEROID_COUNT_MAX; i++) {
         try_update_entity(game_state->renderer, &asteroids->asteroids[i].entity, dt);
     }
 

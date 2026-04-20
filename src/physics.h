@@ -15,9 +15,10 @@ typedef struct Body {
     double angle;
     double angular_velocity;
     double drag;
+    double mass;
 } Body;
 
-Body create_body(Polygon shape, Vector2 position, Vector2 velocity, double angle, double angular_velocity, double drag);
+Body create_body(Polygon shape, Vector2 position, Vector2 velocity, double angle, double angular_velocity, double drag, double mass);
 
 void destroy_body(const Body *body);
 
