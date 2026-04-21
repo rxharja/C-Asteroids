@@ -5,6 +5,7 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
+#include <SDL2/SDL_stdinc.h>
 #include "config.h"
 #include "vector.h"
 #include "physics.h"

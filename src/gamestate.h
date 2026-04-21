@@ -6,8 +6,18 @@
 #define ASTEROIDS_GAMESTATE_H
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_render.h>
-
+#include <SDL2/SDL_ttf.h>
+#include "menu.h"
 #include "entities.h"
+
+typedef enum State {
+    TITLE,
+    PAUSE,
+    PLAYING,
+    SPAWN_NEXT,
+    MID_WAVE_PAUSE,
+    GAME_OVER,
+} State;
 
 typedef struct {
     SDL_Renderer *renderer;
@@ -16,12 +26,18 @@ typedef struct {
     Ship ship;
     Asteroids asteroids;
     Bullets bullets;
+    State state;
     Uint32 last_tick;
+    Menu menu;
 } GameState;
 
 GameState *init_app(void);
 
-void update(GameState *game_state);
+void handle_keydown(GameState *game, SDL_Scancode key);
+
+void handle_game_state(GameState *state);
+
+void play(GameState *game_state, double dt);
 
 void destroy_app(GameState *app);
 

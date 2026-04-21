@@ -1,17 +1,17 @@
-//
-// Created by redonxharja on 4/17/26.
-//
-
 #ifndef ASTEROIDS_RANDOM_H
 #define ASTEROIDS_RANDOM_H
 
-double random_float();
+#include "vector.h"
+
+double random_float(void);
 
 int random_range(int min, int max);
 
-int random_bool();
+int random_bool(void);
 
 int random_int_choice(int one, int two);
 
+// point on a circle of radius between 0.7*r and r at the given angle (radians)
+Vector2 random_vector(double r, double radian);
 
-#endif //ASTEROIDS_RANDOM_H
+#endif // ASTEROIDS_RANDOM_H

@@ -1,32 +1,49 @@
-INCLUDES = -I ./src
-FLAGS = -O1 -g -D_GNU_SOURCE=1 -D_THREAD_SAFE
-SDL = $(shell sdl2-config --cflags)
-LDLFLAGS = $(shell sdl2-config --libs)
-OBJECTS = ./build/main.o ./build/entities.o ./build/vector.o ./build/physics.o ./build/random.o ./build/gamestate.o ./build/polygon.o
+CC      := gcc
+AR      := ar
+CFLAGS  := -O1 -g -Wall -D_GNU_SOURCE=1 -D_THREAD_SAFE
+SDL_CFLAGS := $(shell sdl2-config --cflags)
+SDL_LIBS   := $(shell sdl2-config --libs) -lSDL2_ttf
 
-all: $(OBJECTS)
-	gcc ${FLAGS} ${INCLUDES} ${SDL} ${OBJECTS} -o ./bin/asteroids $(LDLFLAGS) -lm
+BIN_DIR   := bin
+BUILD_DIR := build
+LIB_DIR   := lib
 
-./build/main.o: src/main.c
-	gcc ${FLAGS} ${INCLUDES} ${SDL} ./src/main.c -c -o ./build/main.o
+GAME_DIR  := src
+PHYS_DIR  := physics
 
-./build/entities.o: src/entities.c ./src/config.h
-	gcc ${FLAGS} ${INCLUDES} ${SDL} ./src/entities.c -c -o ./build/entities.o
+PHYS_SRC := $(wildcard $(PHYS_DIR)/*.c)
+PHYS_OBJ := $(patsubst $(PHYS_DIR)/%.c,$(BUILD_DIR)/physics/%.o,$(PHYS_SRC))
+PHYS_LIB := $(LIB_DIR)/libphysics.a
 
-./build/vector.o: src/vector.c ./src/config.h
-	gcc ${FLAGS} ${INCLUDES} ${SDL} ./src/vector.c  -c -o ./build/vector.o
+GAME_SRC := $(wildcard $(GAME_DIR)/*.c)
+GAME_OBJ := $(patsubst $(GAME_DIR)/%.c,$(BUILD_DIR)/game/%.o,$(GAME_SRC))
 
-./build/polygon.o: src/polygon.c
-	gcc ${FLAGS} ${INCLUDES} ${SDL} ./src/polygon.c  -c -o ./build/polygon.o
+GAME_INCLUDES := -I$(GAME_DIR) -I$(PHYS_DIR)
+GAME_CFLAGS   := $(CFLAGS) $(SDL_CFLAGS) $(GAME_INCLUDES)
+PHYS_CFLAGS   := $(CFLAGS) -I$(PHYS_DIR)
 
-./build/physics.o: src/physics.c
-	gcc ${FLAGS} ${INCLUDES} ${SDL} ./src/physics.c -c -o ./build/physics.o
+TARGET := $(BIN_DIR)/asteroids
 
-./build/random.o: src/random.c
-	gcc ${FLAGS} ${INCLUDES} ${SDL} ./src/random.c -c -o ./build/random.o
+.PHONY: all clean physics
 
-./build/gamestate.o: src/gamestate.c ./src/config.h
-	gcc ${FLAGS} ${INCLUDES} ${SDL} ./src/gamestate.c -c -o ./build/gamestate.o
+all: $(TARGET)
+
+physics: $(PHYS_LIB)
+
+$(TARGET): $(GAME_OBJ) $(PHYS_LIB) | $(BIN_DIR)
+	$(CC) $(CFLAGS) $(GAME_OBJ) -o $@ -L$(LIB_DIR) -lphysics $(SDL_LIBS) -lm
+
+$(PHYS_LIB): $(PHYS_OBJ) | $(LIB_DIR)
+	$(AR) rcs $@ $^
+
+$(BUILD_DIR)/game/%.o: $(GAME_DIR)/%.c | $(BUILD_DIR)/game
+	$(CC) $(GAME_CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/physics/%.o: $(PHYS_DIR)/%.c | $(BUILD_DIR)/physics
+	$(CC) $(PHYS_CFLAGS) -c $< -o $@
+
+$(BIN_DIR) $(LIB_DIR) $(BUILD_DIR)/game $(BUILD_DIR)/physics:
+	mkdir -p $@
 
 clean:
-	rm -rf ./build/*.o ./bin/asteroids
+	rm -rf $(BUILD_DIR) $(TARGET) $(PHYS_LIB)

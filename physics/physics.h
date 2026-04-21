@@ -1,9 +1,6 @@
-//
-// Created by redonxharja on 4/15/26.
-//
+#ifndef PHYSICS_PHYSICS_H
+#define PHYSICS_PHYSICS_H
 
-#ifndef ASTEROIDS_PHYSICS_H
-#define ASTEROIDS_PHYSICS_H
 #include "polygon.h"
 #include "vector.h"
 
@@ -18,7 +15,8 @@ typedef struct Body {
     double mass;
 } Body;
 
-Body create_body(Polygon shape, Vector2 position, Vector2 velocity, double angle, double angular_velocity, double drag, double mass);
+Body create_body(Polygon shape, Vector2 position, Vector2 velocity,
+                 double angle, double angular_velocity, double drag, double mass);
 
 void destroy_body(const Body *body);
 
@@ -38,4 +36,4 @@ int is_colliding_sat(const Body *a, const Body *b);
 
 void collision_elastic(Body *a, Body *b);
 
-#endif //ASTEROIDS_PHYSICS_H
+#endif // PHYSICS_PHYSICS_H
