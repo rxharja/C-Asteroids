@@ -52,8 +52,8 @@ Asteroid create_asteroid(const double r) {
   return asteroid;
 }
 
-void create_asteroids(Asteroids *asteroids) {
-  for (int i = 0; i < ASTEROID_COUNT_MIN; i++) {
+void create_asteroids(Asteroids *asteroids, const int count) {
+  for (int i = 0; i < count; i++) {
     const Asteroid asteroid = create_asteroid(ASTEROID_RADIUS);
     asteroids->asteroids[i] = asteroid;
   }
@@ -108,6 +108,13 @@ void check_bullet_collision(Bullets *bullets, Asteroids *asteroids) {
       try_collide_bullet(b, asteroids, j);
     }
   }
+}
+
+int asteroids_cleared(const Asteroids *asteroids) {
+  for (int i = 0; i < ASTEROID_COUNT_MAX; i++) {
+    if (asteroids->asteroids[i].entity.valid) return 0;
+  }
+  return 1;
 }
 
 Ship init_ship(void) {

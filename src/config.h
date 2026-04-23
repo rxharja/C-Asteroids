@@ -15,6 +15,9 @@
 #define ACCELERATION_MAGNITUDE 3000
 #define ANGLE_MAGNITUDE 7
 
+/*--game--*/
+#define PAUSE_TIME 3000 // seconds
+
 /*--entities-- */
 
 // bullets
@@ -26,7 +29,7 @@
 #define BULLET_DRAG 1
 
 // asteroids
-#define ASTEROID_COUNT_MIN 8
+#define BASE_ASTEROID_SPAWN_COUNT 1
 #define ASTEROID_COUNT_MAX 32
 #define ASTEROID_POLYGON_COUNT 16
 #define ASTEROID_ANGULAR_VELOCITY .2

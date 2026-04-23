@@ -53,9 +53,11 @@ void destroy_bullets(const Bullets *bullets);
 // asteroids
 Asteroid create_asteroid(double r);
 
-void create_asteroids(Asteroids *asteroids);
+void create_asteroids(Asteroids *asteroids, int count);
 
 void destroy_asteroids(const Asteroids *asteroids);
+
+int asteroids_cleared(const Asteroids *asteroids);
 
 // collisions
 void check_asteroids_collision(Asteroids *asteroids);

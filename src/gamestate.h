@@ -23,12 +23,18 @@ typedef struct {
     SDL_Renderer *renderer;
     SDL_Window *window;
     SDL_Event event;
+
+    int wave;
+    Uint32 paused_time;
+
     Ship ship;
     Asteroids asteroids;
     Bullets bullets;
+
     State state;
     Uint32 last_tick;
     Menu menu;
+    int started;
 } GameState;
 
 GameState *init_app(void);
