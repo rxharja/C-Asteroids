@@ -13,6 +13,6 @@ This is a bespoke implementation of asteroids done from scratch (except for SDL)
 - [X] Title and Pause Screens
 - [X] Waves
 - [X] Lives
-- [ ] Invincibility Frames
+- [X] Invincibility Frames
 - [ ] Score Counter
 - [ ] UFO

@@ -11,14 +11,24 @@
 void init_lives(Body lives[LIVES], const Ship *ship) {
     for (int i = 0; i < ship->lives; i++) {
         Body life = {
-            polygon_scale(&ship->entity.body.shape, .5),
-             {  60 + 60 * i, 60 }
+            polygon_scale(&ship->entity.body.shape, .25),
+             {  60 + 30 * i, 100 }
         };
-
         body_set_angle(&life, -M_PI_2);
         body_integrate(&life, 1);
         lives[i] = life;
     }
+}
+
+void render_score(const GameState *game_state) {
+    const Body *first_life = &game_state->lives[0];
+    const SDL_Rect dest = {
+        (int)first_life->position.x - 15,
+        (int)first_life->position.y - 80,
+        game_state->score_surface->w,
+        game_state->score_surface->h
+    };
+    SDL_RenderCopy(game_state->renderer, game_state->score_texture, NULL, &dest);
 }
 
 void render_lives(const GameState *game_state) {
@@ -29,12 +39,20 @@ void render_lives(const GameState *game_state) {
 
 static void allocate_wave_text(GameState *game_state) {
     const SDL_Color white = {255, 255, 255, 255};
-
     char txt[24];
     snprintf(txt, sizeof(txt),"WAVE %i", game_state->wave + 1);
-
     game_state->wave_surface = TTF_RenderText_Blended(game_state->menu.title_font, txt, white);
     game_state->wave_texture = SDL_CreateTextureFromSurface(game_state->renderer, game_state->wave_surface);
+}
+
+static void update_score_counter(GameState *game_state) {
+    if (game_state->score_surface != NULL) SDL_FreeSurface(game_state->score_surface);
+    if (game_state->score_texture != NULL) SDL_DestroyTexture(game_state->score_texture);
+    const SDL_Color white = {255, 255, 255, 255};
+    char txt[15];
+    snprintf(txt, sizeof(txt),"%i", game_state->score);
+    game_state->score_surface = TTF_RenderText_Blended(game_state->menu.font, txt, white);
+    game_state->score_texture = SDL_CreateTextureFromSurface(game_state->renderer, game_state->score_surface);
 }
 
 static State current_state(const GameState *g) {
@@ -65,7 +83,9 @@ static void init_game_props(GameState *app) {
     app->bullets = (Bullets){ .cooldown = BULLET_COOLDOWN };
     app->ship = init_ship();
     app->last_tick = SDL_GetTicks();
+    app->score = 0;
     allocate_wave_text(app);
+    update_score_counter(app);
     init_lives(app->lives, &app->ship);
     set_state(app, TITLE);
 }
@@ -185,6 +205,7 @@ static void move_and_shoot(GameState *game_state, const double dt) {
     Ship *ship = &game_state->ship;
     Bullets *bullets = &game_state->bullets;
 
+    render_score(game_state);
     render_lives(game_state);
     handle_playing_kb(game_state, dt);
     try_integrate_entity(&ship->entity, dt);
@@ -270,7 +291,11 @@ void play(GameState *game_state, const double dt) {
     ship->iframes -= dt;
 
     check_asteroids_collision(asteroids);
-    check_bullet_collision(&game_state->bullets, asteroids);
+    const int points = check_bullet_collision(&game_state->bullets, asteroids);
+
+    if (points <= 0) return;
+    game_state->score += points;
+    update_score_counter(game_state);
 }
 
 void destroy_entities(const GameState *app) {
@@ -285,6 +310,10 @@ void destroy_entities(const GameState *app) {
 void destroy_app(GameState *app) {
     destroy_entities(app);
     destroy_menu(&app->menu);
+    SDL_FreeSurface(app->wave_surface);
+    SDL_DestroyTexture(app->wave_texture);
+    SDL_FreeSurface(app->score_surface);
+    SDL_DestroyTexture(app->score_texture);
     SDL_DestroyRenderer(app->renderer);
     SDL_DestroyWindow(app->window);
     TTF_Quit();

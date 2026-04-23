@@ -75,13 +75,16 @@ void check_asteroids_collision(Asteroids *asteroids) {
   }
 }
 
-void split_asteroid(Asteroids *asteroids, const int a_idx) {
+int split_asteroid(Asteroids *asteroids, const int a_idx) {
+  int score = 0;
   Asteroid *a = &asteroids->asteroids[a_idx];
-  Vector2 pos = a->entity.body.position;
+  const Vector2 pos = a->entity.body.position;
   const double r = a->radius;
   a->entity.valid = 0;
 
-  if (r < ASTEROID_DESTROY_RADIUS) return;
+  if (r > ASTEROID_LARGE_THRESHOLD) score = 100;
+  else if (r > ASTEROID_MEDIUM_THRESHOLD) score = 50;
+  else return 250;
 
   int added = 0;
   for (int i = 0; i < ASTEROID_COUNT_MAX; i++) {
@@ -91,23 +94,27 @@ void split_asteroid(Asteroids *asteroids, const int a_idx) {
     asteroids->asteroids[i].entity.body.position = pos;
     added++;
   }
+
+  return score;
 }
 
-void try_collide_bullet(Bullet *b, Asteroids *asteroids, const int a_idx) {
+int try_collide_bullet(Bullet *b, Asteroids *asteroids, const int a_idx) {
   const Asteroid *a = &asteroids->asteroids[a_idx];
-  if (!a->entity.valid || !b->entity.valid) return;
-  if (!is_colliding_sat(&b->entity.body,&a->entity.body)) return;
+  if (!a->entity.valid || !b->entity.valid) return 0;
+  if (!is_colliding_sat(&b->entity.body,&a->entity.body)) return 0;
   b->entity.valid = 0;
-  split_asteroid(asteroids, a_idx);
+  return split_asteroid(asteroids, a_idx);
 }
 
-void check_bullet_collision(Bullets *bullets, Asteroids *asteroids) {
+int check_bullet_collision(Bullets *bullets, Asteroids *asteroids) {
+  int score = 0;
   for (int i = 0; i < BULLET_COUNT; i++) {
     Bullet *b = &bullets->bullets[i];
     for (int j = 0; j < ASTEROID_COUNT_MAX; j++) {
-      try_collide_bullet(b, asteroids, j);
+      score += try_collide_bullet(b, asteroids, j);
     }
   }
+  return score;
 }
 
 int asteroids_cleared(const Asteroids *asteroids) {

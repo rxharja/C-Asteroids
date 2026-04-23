@@ -64,7 +64,7 @@ int asteroids_cleared(const Asteroids *asteroids);
 // collisions
 void check_asteroids_collision(Asteroids *asteroids);
 
-void check_bullet_collision(Bullets *bullets, Asteroids *asteroids);
+int check_bullet_collision(Bullets *bullets, Asteroids *asteroids);
 
 // ship
 Ship init_ship(void);

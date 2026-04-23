@@ -34,6 +34,7 @@ typedef struct {
     Asteroids asteroids;
     Bullets bullets;
     Body lives[LIVES];
+    uint score;
 
     State previous_state; // necessary for switching back when pausing
     State current_state;
@@ -41,6 +42,9 @@ typedef struct {
 
     SDL_Texture *wave_texture;
     SDL_Surface *wave_surface;
+
+    SDL_Texture *score_texture;
+    SDL_Surface *score_surface;
 
     Menu menu;
 } GameState;
