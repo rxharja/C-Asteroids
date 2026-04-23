@@ -35,8 +35,8 @@ typedef struct {
     Bullets bullets;
     Body lives[LIVES];
 
-    State state_stack[STATE_STACK_MAX];
-    int state_sp;
+    State previous_state; // necessary for switching back when pausing
+    State current_state;
     Uint32 last_tick;
 
     SDL_Texture *wave_texture;

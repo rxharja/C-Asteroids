@@ -35,7 +35,7 @@ static void allocate_wave_text(GameState *game_state) {
 }
 
 static State current_state(const GameState *g) {
-    return g->state_sp > 0 ? g->state_stack[g->state_sp - 1] : TITLE;
+    return g->current_state;
 }
 
 static void enter_state(GameState *g, const State s) {
@@ -50,30 +50,9 @@ static void enter_state(GameState *g, const State s) {
 
 static void set_state(GameState *g, const State s) {
     if (current_state(g) == s) return;
-    if (g->state_sp == 0) g->state_sp = 1;
-    g->state_stack[g->state_sp - 1] = s;
+    g->previous_state = g->current_state;
+    g->current_state = s;
     enter_state(g, s);
-}
-
-static void push_state(GameState *g, const State s) {
-    if (current_state(g) == s) return;
-    if (g->state_sp >= STATE_STACK_MAX) return;
-    // freeze MID_WAVE_PAUSE countdown before it gets covered
-    if (current_state(g) == MID_WAVE_PAUSE) {
-        const Uint32 elapsed = SDL_GetTicks() - g->paused_time;
-        g->pause_remaining = elapsed < PAUSE_TIME ? PAUSE_TIME - elapsed : 0;
-    }
-    g->state_stack[g->state_sp++] = s;
-    enter_state(g, s);
-}
-
-static void pop_state(GameState *g) {
-    if (g->state_sp <= 1) return;
-    g->state_sp--;
-    // resume MID_WAVE_PAUSE countdown from where we froze it
-    if (current_state(g) == MID_WAVE_PAUSE) {
-        g->paused_time = SDL_GetTicks() - (PAUSE_TIME - g->pause_remaining);
-    }
 }
 
 static void init_game_props(GameState *app) {
@@ -84,7 +63,6 @@ static void init_game_props(GameState *app) {
     app->ship = init_ship();
     app->last_tick = SDL_GetTicks();
     allocate_wave_text(app);
-    app->state_sp = 0;
     init_lives(app->lives, &app->ship);
     set_state(app, TITLE);
 }
@@ -142,8 +120,8 @@ void handle_keydown(GameState *game, const SDL_Scancode key) {
             if (key == SDL_SCANCODE_S || key == SDL_SCANCODE_DOWN)
                 game->menu.menu_choice = !game->menu.menu_choice;
             if (key == SDL_SCANCODE_RETURN && game->menu.menu_choice == PLAY) {
-                if (current_state(game) == PAUSE) pop_state(game);
-                else                              set_state(game, MID_WAVE_PAUSE);
+                if (current_state(game) == PAUSE) set_state(game, game->previous_state);
+                else set_state(game, MID_WAVE_PAUSE); // initial state after title
             }
             if (key == SDL_SCANCODE_RETURN && game->menu.menu_choice == QUIT) {
                 destroy_app(game);
@@ -151,7 +129,7 @@ void handle_keydown(GameState *game, const SDL_Scancode key) {
             }
             break;
         case PLAYING:
-            if (key == SDL_SCANCODE_ESCAPE) push_state(game, PAUSE);
+            if (key == SDL_SCANCODE_ESCAPE) set_state(game, PAUSE);
             break;
         default:
             break;
@@ -165,7 +143,7 @@ void handle_playing_kb(GameState *game, const double dt) {
     Body *ship_body = &ship->entity.body;
 
     if (state[SDL_SCANCODE_ESCAPE]) {
-        push_state(game, PAUSE);
+        set_state(game, PAUSE);
     }
 
     if (state[SDL_SCANCODE_W]) {
