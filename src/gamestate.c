@@ -10,11 +10,14 @@
 
 void init_lives(Body lives[LIVES], const Ship *ship) {
     for (int i = 0; i < ship->lives; i++) {
-        lives[i] = (Body){
-            polygon_scale(&ship->entity.body.shape, .4),
-             { 100, WINDOW_HEIGHT - (LIVES * 100)/(i+1) }
+        Body life = {
+            polygon_scale(&ship->entity.body.shape, .5),
+             {  60 + 60 * i, 60 }
         };
-        body_integrate(&lives[i], 1);
+
+        body_set_angle(&life, -M_PI_2);
+        body_integrate(&life, 1);
+        lives[i] = life;
     }
 }
 
