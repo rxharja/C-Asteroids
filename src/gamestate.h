@@ -19,22 +19,30 @@ typedef enum State {
     GAME_OVER,
 } State;
 
+#define STATE_STACK_MAX 4
+
 typedef struct {
     SDL_Renderer *renderer;
     SDL_Window *window;
     SDL_Event event;
 
-    int wave;
+    uint lives;
+    uint wave;
     Uint32 paused_time;
+    Uint32 pause_remaining;
 
     Ship ship;
     Asteroids asteroids;
     Bullets bullets;
 
-    State state;
+    State state_stack[STATE_STACK_MAX];
+    int state_sp;
     Uint32 last_tick;
+
+    SDL_Texture *wave_texture;
+    SDL_Surface *wave_surface;
+
     Menu menu;
-    int started;
 } GameState;
 
 GameState *init_app(void);

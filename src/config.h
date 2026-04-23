@@ -11,12 +11,14 @@
 
 /*--physics--*/
 #define DRAG_FACTOR .2
-#define EPSILON 0.02
 #define ACCELERATION_MAGNITUDE 3000
 #define ANGLE_MAGNITUDE 7
 
 /*--game--*/
-#define PAUSE_TIME 3000 // seconds
+#define PAUSE_TIME 3000 // milliseconds
+#define LIVES 3 // seconds
+#define TITLE_OFFSET 100
+#define WAVE_TEXT_OFFSET 300
 
 /*--entities-- */
 

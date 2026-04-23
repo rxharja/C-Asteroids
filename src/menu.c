@@ -48,7 +48,7 @@ void init_menu(Menu *menu, SDL_Renderer *r) {
 void render_title(const Menu *menu, SDL_Renderer *renderer) {
     const SDL_Rect title_dest = {
         (WINDOW_WIDTH - menu->title_surface->w)/2,
-        (WINDOW_HEIGHT - menu->title_surface->h)/2 - 100,
+        (WINDOW_HEIGHT - menu->title_surface->h)/2 - TITLE_OFFSET,
         menu->title_surface->w, menu->title_surface->h
     };
     SDL_RenderCopy(renderer, menu->title_texture, NULL, &title_dest);
@@ -73,7 +73,7 @@ void render_title(const Menu *menu, SDL_Renderer *renderer) {
 void render_pause(const Menu *menu, SDL_Renderer *renderer) {
     const SDL_Rect title_dest = {
         (WINDOW_WIDTH - menu->title_surface->w)/2,
-        (WINDOW_HEIGHT - menu->title_surface->h)/2 - 100,
+        (WINDOW_HEIGHT - menu->title_surface->h)/2 - TITLE_OFFSET,
         menu->title_surface->w, menu->title_surface->h
     };
     SDL_RenderCopy(renderer, menu->title_texture, NULL, &title_dest);
