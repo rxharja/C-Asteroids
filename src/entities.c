@@ -119,6 +119,7 @@ int asteroids_cleared(const Asteroids *asteroids) {
 
 Ship init_ship(void) {
   Ship ship = {0};
+  ship.lives = LIVES;
 
   const Vector2 position = { .x = WINDOW_WIDTH / 2., .y = WINDOW_HEIGHT / 2. };
   const Vector2 p1 = { .x = 70,  .y = 0 };    // nose — now +X

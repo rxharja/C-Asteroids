@@ -41,3 +41,13 @@ int test_axes(const Polygon *a, const Polygon *b) {
     }
     return 1;
 }
+
+Polygon polygon_scale(const Polygon *p, const double factor) {
+    Vector2 points[p->point_count];
+
+    for (size_t i = 0; i < p->point_count; i++) {
+       points[i] = vector_scale(p->offsets[i], factor);
+    }
+
+    return polygon_init(p->point_count, points);
+}

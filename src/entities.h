@@ -28,6 +28,8 @@ typedef struct Bullets {
 
 typedef struct Ship {
   Entity entity;
+  uint lives;
+  uint iframes;
 } Ship;
 
 typedef struct Asteroid {

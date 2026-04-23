@@ -8,6 +8,22 @@
 #include "config.h"
 #include "render.h"
 
+void init_lives(Body lives[LIVES], const Ship *ship) {
+    for (int i = 0; i < ship->lives; i++) {
+        lives[i] = (Body){
+            polygon_scale(&ship->entity.body.shape, .4),
+             { 100, WINDOW_HEIGHT - (LIVES * 100)/(i+1) }
+        };
+        body_integrate(&lives[i], 1);
+    }
+}
+
+void render_lives(const GameState *game_state) {
+    for (int i = 0; i < game_state->ship.lives; i++) {
+        draw_polygon(game_state->renderer, &game_state->lives[i].shape);
+    }
+}
+
 static void allocate_wave_text(GameState *game_state) {
     const SDL_Color white = {255, 255, 255, 255};
 
@@ -62,7 +78,6 @@ static void pop_state(GameState *g) {
 
 static void init_game_props(GameState *app) {
     app->wave = 0;
-    app->lives = LIVES;
     app->asteroids = (Asteroids){ .count = ASTEROID_COUNT_MAX };
     create_asteroids(&app->asteroids, BASE_ASTEROID_SPAWN_COUNT + app->wave);
     app->bullets = (Bullets){ .cooldown = BULLET_COOLDOWN };
@@ -70,6 +85,7 @@ static void init_game_props(GameState *app) {
     app->last_tick = SDL_GetTicks();
     allocate_wave_text(app);
     app->state_sp = 0;
+    init_lives(app->lives, &app->ship);
     set_state(app, TITLE);
 }
 
@@ -172,14 +188,14 @@ void handle_playing_kb(GameState *game, const double dt) {
     }
 }
 
-double update_ticks(GameState *state) {
+static double update_ticks(GameState *state) {
     const Uint32 now = SDL_GetTicks();
     const double dt = (now - state->last_tick) / 1000.0;
     state->last_tick = now;
     return dt;
 }
 
-void check_pause_time(GameState *state) {
+static void check_pause_time(GameState *state) {
     if (current_state(state) != MID_WAVE_PAUSE) return;
 
     const Uint32 now = SDL_GetTicks();
@@ -189,10 +205,11 @@ void check_pause_time(GameState *state) {
     set_state(state, SPAWN_NEXT);
 }
 
-void move_and_shoot(GameState *game_state, const double dt) {
+static void move_and_shoot(GameState *game_state, const double dt) {
     Ship *ship = &game_state->ship;
     Bullets *bullets = &game_state->bullets;
 
+    render_lives(game_state);
     handle_playing_kb(game_state, dt);
     try_update_entity(game_state->renderer, &ship->entity, dt);
 
@@ -202,7 +219,7 @@ void move_and_shoot(GameState *game_state, const double dt) {
     }
 }
 
-void mid_wave_pause(GameState *game_state, const double dt) {
+static void mid_wave_pause(GameState *game_state, const double dt) {
     const SDL_Rect wave_dest = {
         (WINDOW_WIDTH - game_state->wave_surface->w)/2,
         (WINDOW_HEIGHT - game_state->wave_surface->h)/2 - WAVE_TEXT_OFFSET,
@@ -213,7 +230,7 @@ void mid_wave_pause(GameState *game_state, const double dt) {
     move_and_shoot(game_state, dt);
 }
 
-void reset_state(GameState *state) {
+static void reset_state(GameState *state) {
     destroy_entities(state);
     init_game_props(state);
 }
@@ -250,7 +267,6 @@ void handle_game_state(GameState *state) {
             set_state(state, PLAYING);
             break;
         case GAME_OVER:
-            state->lives--;
             if (state->lives <= 0) reset_state(state);
             break;
     }
@@ -266,8 +282,12 @@ void play(GameState *game_state, const double dt) {
         try_update_entity(game_state->renderer, &asteroids->asteroids[i].entity, dt);
     }
 
-    if (is_ship_colliding(&game_state->ship, asteroids)) {
-        set_state(game_state, GAME_OVER);
+    if (is_ship_colliding(&game_state->ship, asteroids) && game_state->ship.iframes <= 0) {
+        game_state->ship.iframes = 1;
+        game_state->ship.lives--;
+        if (game_state->ship.lives <= 0) {
+            set_state(game_state, GAME_OVER);
+        }
     }
 
     check_asteroids_collision(asteroids);
@@ -278,6 +298,9 @@ void destroy_entities(const GameState *app) {
     destroy_bullets(&app->bullets);
     destroy_asteroids(&app->asteroids);
     destroy_body(&app->ship.entity.body);
+    for (int i = 0; i < LIVES; i++) {
+       destroy_body(&app->lives[i]);
+    }
 }
 
 void destroy_app(GameState *app) {

@@ -19,6 +19,8 @@ Polygon polygon_init(size_t point_count, Vector2 offsets[]);
 
 void polygon_destroy(const Polygon *poly);
 
+Polygon polygon_scale(const Polygon *p, double factor);
+
 Projection project(const Polygon *p, const Vector2 *axis);
 
 int test_axes(const Polygon *a, const Polygon *b);

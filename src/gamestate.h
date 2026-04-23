@@ -26,7 +26,6 @@ typedef struct {
     SDL_Window *window;
     SDL_Event event;
 
-    uint lives;
     uint wave;
     Uint32 paused_time;
     Uint32 pause_remaining;
@@ -34,6 +33,7 @@ typedef struct {
     Ship ship;
     Asteroids asteroids;
     Bullets bullets;
+    Body lives[LIVES];
 
     State state_stack[STATE_STACK_MAX];
     int state_sp;
