@@ -106,14 +106,18 @@ int try_collide_bullet(Bullet *b, Asteroids *asteroids, const int a_idx) {
   return split_asteroid(asteroids, a_idx);
 }
 
-int check_bullet_collision(Bullets *bullets, Asteroids *asteroids) {
+int check_bullet_collision(Bullets *bullets, Asteroids *asteroids, Explosions *explosions) {
   int score = 0;
+  int contact_idx = -1;
   for (int i = 0; i < BULLET_COUNT; i++) {
     Bullet *b = &bullets->bullets[i];
     for (int j = 0; j < ASTEROID_COUNT_MAX; j++) {
-      score += try_collide_bullet(b, asteroids, j);
+      const int points = try_collide_bullet(b, asteroids, j);
+      score += points;
+      if (points > 0) contact_idx = j;
     }
   }
+  if (contact_idx > -1) create_explosions(explosions, asteroids->asteroids[contact_idx].entity.body.position);
   return score;
 }
 
@@ -122,6 +126,34 @@ int asteroids_cleared(const Asteroids *asteroids) {
     if (asteroids->asteroids[i].entity.valid) return 0;
   }
   return 1;
+}
+
+Explosion create_particles(const Vector2 position, const double lifetime) {
+  Vector2 point[1] = { { 1, 1 }};
+  Explosion explosion = {
+    (Entity) {
+      create_body( polygon_init(1, point), position,
+        (Vector2) {
+            .x = random_range(-1000, 1000),
+            .y = random_range(-1000, 1000)
+          }, random_range(0, 3), 0, 0, 0), 1
+    }, lifetime
+  };
+
+  body_integrate(&explosion.entity.body, 1);
+  return explosion;
+}
+
+void create_explosions(Explosions *explosions, const Vector2 position) {
+  for (int i = 0; i < 36; i++) {
+    explosions->explosions[i] = create_particles(position, PARTICLE_LIFETIME);
+  }
+}
+
+void free_explosions(const Explosions *explosions) {
+  for (int i = 0; i < ASTEROID_COUNT_MAX; i++) {
+    destroy_body(&explosions->explosions[i].entity.body);
+  }
 }
 
 Ship init_ship(void) {

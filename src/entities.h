@@ -32,6 +32,15 @@ typedef struct Ship {
   double iframes;
 } Ship;
 
+typedef struct Explosion {
+  Entity entity;
+  double lifetime;
+} Explosion;
+
+typedef struct Explosions {
+ Explosion explosions[36];
+} Explosions;
+
 typedef struct Asteroid {
   Entity entity;
   double radius;
@@ -61,10 +70,17 @@ void destroy_asteroids(const Asteroids *asteroids);
 
 int asteroids_cleared(const Asteroids *asteroids);
 
+// particles
+Explosion create_particles(Vector2 position, double lifetime);
+
+void create_explosions(Explosions *explosions, Vector2 position);
+
+void free_explosions(const Explosions *explosions);
+
 // collisions
 void check_asteroids_collision(Asteroids *asteroids);
 
-int check_bullet_collision(Bullets *bullets, Asteroids *asteroids);
+int check_bullet_collision(Bullets *bullets, Asteroids *asteroids, Explosions *explosions);
 
 // ship
 Ship init_ship(void);

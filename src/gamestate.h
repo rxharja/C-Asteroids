@@ -33,6 +33,7 @@ typedef struct {
     Ship ship;
     Asteroids asteroids;
     Bullets bullets;
+    Explosions explosions;
     Body lives[LIVES];
     uint score;
 

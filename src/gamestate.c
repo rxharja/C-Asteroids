@@ -216,6 +216,14 @@ static void move_and_shoot(GameState *game_state, const double dt) {
         try_draw_entity(game_state->renderer, &bullets->bullets[i].entity);
         degrade_bullet(&bullets->bullets[i], dt);
     }
+
+    for (int i = 0; i < ASTEROID_COUNT_MAX; i++) {
+        Explosion *explosion = &game_state->explosions.explosions[i];
+        try_integrate_entity(&explosion->entity, dt);
+        try_draw_entity(game_state->renderer, &explosion->entity);
+        if (explosion->lifetime > 0) explosion->lifetime -= dt;
+        else if (explosion->lifetime <= 0) explosion->entity.valid = 0;
+    }
 }
 
 static void mid_wave_pause(GameState *game_state, const double dt) {
@@ -291,7 +299,7 @@ void play(GameState *game_state, const double dt) {
     ship->iframes -= dt;
 
     check_asteroids_collision(asteroids);
-    const int points = check_bullet_collision(&game_state->bullets, asteroids);
+    const int points = check_bullet_collision(&game_state->bullets, asteroids, &game_state->explosions);
 
     if (points <= 0) return;
     game_state->score += points;
