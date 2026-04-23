@@ -53,7 +53,7 @@ static void enter_state(GameState *g, const State s) {
 
 static void set_state(GameState *g, const State s) {
     if (current_state(g) == s) return;
-    g->previous_state = g->current_state;
+    if (s == PAUSE) g->previous_state = g->current_state;
     g->current_state = s;
     enter_state(g, s);
 }
@@ -98,19 +98,14 @@ GameState *init_app(void) {
     return app;
 }
 
-void wrap_around_screen(Body *body, const int screen_width, const int screen_height) {
-    Vector2 pos = body->position;
-    if (pos.x < 0) pos.x = screen_width;
-    else if (pos.x > screen_width)  pos.x = 0;
-    if (pos.y < 0) pos.y = screen_height;
-    else if (pos.y > screen_height) pos.y = 0;
-    body_set_position(body, pos);
-}
-
-void try_update_entity(SDL_Renderer *renderer, Entity *entity, const double dt) {
+void try_integrate_entity(Entity *entity, const double dt) {
     if (!entity->valid) return;
     wrap_around_screen(&entity->body, WINDOW_WIDTH, WINDOW_HEIGHT);
     body_integrate(&entity->body, dt);
+}
+
+void try_draw_entity(SDL_Renderer *renderer, const Entity *entity) {
+    if (!entity->valid) return;
     draw_polygon(renderer, &entity->body.shape);
 }
 
@@ -192,10 +187,12 @@ static void move_and_shoot(GameState *game_state, const double dt) {
 
     render_lives(game_state);
     handle_playing_kb(game_state, dt);
-    try_update_entity(game_state->renderer, &ship->entity, dt);
+    try_integrate_entity(&ship->entity, dt);
+    if (ship->iframes <= 0 || (int)(ship->iframes * 10) % 2 == 0 ) try_draw_entity(game_state->renderer, &ship->entity);
 
     for (int i = 0; i < BULLET_COUNT; i++) {
-        try_update_entity(game_state->renderer, &bullets->bullets[i].entity, dt);
+        try_integrate_entity(&bullets->bullets[i].entity, dt);
+        try_draw_entity(game_state->renderer, &bullets->bullets[i].entity);
         degrade_bullet(&bullets->bullets[i], dt);
     }
 }
@@ -256,20 +253,21 @@ void handle_game_state(GameState *state) {
 }
 
 void play(GameState *game_state, const double dt) {
+    Ship *ship = &game_state->ship;
     Asteroids *asteroids = &game_state->asteroids;
 
     move_and_shoot(game_state, dt);
     for (int i = 0; i < ASTEROID_COUNT_MAX; i++) {
-        try_update_entity(game_state->renderer, &asteroids->asteroids[i].entity, dt);
+        try_integrate_entity(&asteroids->asteroids[i].entity, dt);
+        try_draw_entity(game_state->renderer, &asteroids->asteroids[i].entity);
     }
 
-    if (is_ship_colliding(&game_state->ship, asteroids) && game_state->ship.iframes <= 0) {
-        game_state->ship.iframes = 1;
-        game_state->ship.lives--;
-        if (game_state->ship.lives <= 0) {
-            set_state(game_state, GAME_OVER);
-        }
+    if (ship->iframes <= 0 && is_ship_colliding(ship, asteroids) ) {
+        ship->iframes = IFRAMES;
+        ship->lives--;
+        if (ship->lives <= 0) set_state(game_state, GAME_OVER);
     }
+    ship->iframes -= dt;
 
     check_asteroids_collision(asteroids);
     check_bullet_collision(&game_state->bullets, asteroids);

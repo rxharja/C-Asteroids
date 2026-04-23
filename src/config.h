@@ -16,7 +16,7 @@
 
 /*--game--*/
 #define PAUSE_TIME 3000 // milliseconds
-#define LIVES 3 // seconds
+#define LIVES 3
 #define TITLE_OFFSET 100
 #define WAVE_TEXT_OFFSET 300
 
@@ -40,4 +40,6 @@
 #define ASTEROID_VELOCITY_FACTOR 200
 #define ASTEROID_DRAG 1
 
+// ship
+#define IFRAMES 3.0 // seconds
 #endif //CONFIG_H
