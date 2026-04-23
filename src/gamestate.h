@@ -45,6 +45,8 @@ void handle_game_state(GameState *state);
 
 void play(GameState *game_state, double dt);
 
+void destroy_entities(const GameState *app);
+
 void destroy_app(GameState *app);
 
 #endif //ASTEROIDS_GAMESTATE_H

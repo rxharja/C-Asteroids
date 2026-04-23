@@ -136,6 +136,16 @@ Ship init_ship(void) {
   return ship;
 }
 
+int is_ship_colliding(const Ship *ship, const Asteroids *asteroids) {
+  for (int i = 0; i < ASTEROID_COUNT_MAX; i++) {
+    const Asteroid *a = &asteroids->asteroids[i];
+    if (!a->entity.valid) continue;
+    if (is_colliding_sat(&ship->entity.body, &a->entity.body)) return 1;
+  }
+  return 0;
+}
+
+
 void fire_bullet(Bullets *bullet_mgr, const Ship *ship) {
   for (int i = 0; i < BULLET_COUNT; i++) {
     Bullet *b = &bullet_mgr->bullets[i];

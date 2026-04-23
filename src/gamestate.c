@@ -8,6 +8,16 @@
 #include "config.h"
 #include "render.h"
 
+void init_game_props(GameState *app) {
+    app->asteroids = (Asteroids){ .count = ASTEROID_COUNT_MAX };
+    create_asteroids(&app->asteroids, BASE_ASTEROID_SPAWN_COUNT + app->wave);
+    app->bullets = (Bullets){ .cooldown = BULLET_COOLDOWN };
+    app->ship = init_ship();
+    app->last_tick = SDL_GetTicks();
+    app->state = TITLE;
+    app->wave = 0;
+}
+
 GameState *init_app(void) {
     const int rendererFlags = SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED;
     const int windowFlags = SDL_WINDOW_OPENGL;
@@ -30,13 +40,7 @@ GameState *init_app(void) {
     app->renderer = SDL_CreateRenderer(app->window, -1, rendererFlags);
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
 
-    app->asteroids = (Asteroids){ .count = ASTEROID_COUNT_MAX };
-    create_asteroids(&app->asteroids, BASE_ASTEROID_SPAWN_COUNT + app->wave);
-    app->bullets = (Bullets){ .cooldown = BULLET_COOLDOWN };
-    app->ship = init_ship();
-    app->last_tick = SDL_GetTicks();
-    app->state = TITLE;
-    app->wave = 0;
+    init_game_props(app);
     init_menu(&app->menu, app->renderer);
 
     return app;
@@ -145,8 +149,8 @@ void move_and_shoot(GameState *game_state, const double dt) {
 }
 
 void mid_wave_pause(GameState *game_state, const double dt) {
-    char txt[16];
-    sprintf(txt, "WAVE %i", game_state->wave + 1);
+    char txt[24];
+    snprintf(txt, sizeof(txt),"WAVE %i", game_state->wave + 1);
 
     const SDL_Color white = {255, 255, 255, 255};
     SDL_Surface *wave_surface = TTF_RenderText_Blended(game_state->menu.title_font, txt, white);
@@ -164,6 +168,11 @@ void mid_wave_pause(GameState *game_state, const double dt) {
 
     SDL_FreeSurface(wave_surface);
     SDL_DestroyTexture(wave_texture);
+}
+
+void reset_state(GameState *state) {
+    destroy_entities(state);
+    init_game_props(state);
 }
 
 void handle_game_state(GameState *state) {
@@ -196,7 +205,8 @@ void handle_game_state(GameState *state) {
             state->state = PLAYING;
             break;
         case GAME_OVER:
-            // return to title
+            reset_state(state);
+            state->state = TITLE;
             break;
     }
 
@@ -205,24 +215,29 @@ void handle_game_state(GameState *state) {
 
 void play(GameState *game_state, const double dt) {
     Asteroids *asteroids = &game_state->asteroids;
-
     move_and_shoot(game_state, dt);
-
     check_asteroids_collision(asteroids);
     check_bullet_collision(&game_state->bullets, asteroids);
+    if (is_ship_colliding(&game_state->ship, asteroids)) {
+        game_state->state = GAME_OVER;
+    }
 
     for (int i = 0; i < ASTEROID_COUNT_MAX; i++) {
         try_update_entity(game_state->renderer, &asteroids->asteroids[i].entity, dt);
     }
 }
 
+void destroy_entities(const GameState *app) {
+    destroy_bullets(&app->bullets);
+    destroy_asteroids(&app->asteroids);
+    destroy_body(&app->ship.entity.body);
+}
+
 void destroy_app(GameState *app) {
     SDL_DestroyRenderer(app->renderer);
     SDL_DestroyWindow(app->window);
     SDL_Quit();
-    destroy_bullets(&app->bullets);
-    destroy_asteroids(&app->asteroids);
-    destroy_body(&app->ship.entity.body);
+    destroy_entities(app);
     destroy_menu(&app->menu);
     free(app);
 }

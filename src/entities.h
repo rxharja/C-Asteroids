@@ -66,5 +66,6 @@ void check_bullet_collision(Bullets *bullets, Asteroids *asteroids);
 
 // ship
 Ship init_ship(void);
+int is_ship_colliding(const Ship *ship, const Asteroids *asteroids);
 
 #endif //ENTITIES_H
