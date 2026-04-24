@@ -15,5 +15,5 @@ This is a bespoke implementation of asteroids done from scratch (except for SDL)
 - [X] Lives
 - [X] Invincibility Frames
 - [X] Score Counter
-- [ ] Particles
+- [X] Particles
 - [ ] Game Over Screen

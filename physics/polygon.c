@@ -11,9 +11,11 @@ Polygon polygon_init(const size_t point_count, Vector2 offsets[]) {
     return polygon;
 }
 
-void polygon_destroy(const Polygon *poly) {
+void polygon_destroy(Polygon *poly) {
     free(poly->offsets);
     free(poly->world);
+    poly->offsets = NULL;
+    poly->world = NULL;
 }
 
 Projection project(const Polygon *p, const Vector2 *axis) {

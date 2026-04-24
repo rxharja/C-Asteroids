@@ -73,7 +73,7 @@ void collision_elastic(Body *a, Body *b) {
         vector_scale(normal, (2 * a->mass * proj_a + (b->mass - a->mass) * proj_b) / total_mass));
 }
 
-void destroy_body(const Body *body) {
+void destroy_body(Body *body) {
     polygon_destroy(&body->shape);
 }
 

@@ -18,7 +18,7 @@ typedef struct Body {
 Body create_body(Polygon shape, Vector2 position, Vector2 velocity,
                  double angle, double angular_velocity, double drag, double mass);
 
-void destroy_body(const Body *body);
+void destroy_body(Body *body);
 
 void body_integrate(Body *body, double dt);
 

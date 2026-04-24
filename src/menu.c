@@ -107,4 +107,6 @@ void destroy_menu(const Menu *menu) {
     SDL_FreeSurface(menu->quit_surface);
     SDL_DestroyTexture(menu->quit_active);
     SDL_DestroyTexture(menu->quit_inactive);
+    TTF_CloseFont(menu->font);
+    TTF_CloseFont(menu->title_font);
 }
