@@ -134,9 +134,9 @@ Explosion create_particles(const Vector2 position, const double lifetime) {
     (Entity) {
       create_body( polygon_init(1, point), position,
         (Vector2) {
-            .x = random_range(-1000, 1000),
-            .y = random_range(-1000, 1000)
-          }, random_range(0, 3), 0, 0, 0), 1
+            .x = random_range(-75, 75),
+            .y = random_range(-75, 75)
+          }, random_range(0, 4), 0, 1, 0), 1
     }, lifetime
   };
 
