@@ -307,7 +307,7 @@ void play(GameState *game_state, const double dt) {
     update_score_counter(game_state);
 }
 
-void destroy_entities(const GameState *app) {
+void destroy_entities(GameState *app) {
     destroy_bullets(&app->bullets);
     destroy_asteroids(&app->asteroids);
     destroy_body(&app->ship.entity.body);

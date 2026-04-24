@@ -17,7 +17,7 @@ typedef struct {
 
 Polygon polygon_init(size_t point_count, Vector2 offsets[]);
 
-void polygon_destroy(const Polygon *poly);
+void polygon_destroy(Polygon *poly);
 
 Polygon polygon_scale(const Polygon *p, double factor);
 

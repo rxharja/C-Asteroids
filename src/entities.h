@@ -59,14 +59,14 @@ void fire_bullet(Bullets *bullet_mgr, const Ship *ship);
 
 void degrade_bullet(Bullet *b, double dt);
 
-void destroy_bullets(const Bullets *bullets);
+void destroy_bullets(Bullets *bullets);
 
 // asteroids
 Asteroid create_asteroid(double r);
 
 void create_asteroids(Asteroids *asteroids, int count);
 
-void destroy_asteroids(const Asteroids *asteroids);
+void destroy_asteroids(Asteroids *asteroids);
 
 int asteroids_cleared(const Asteroids *asteroids);
 
@@ -75,7 +75,7 @@ void create_particles(Explosions *explosions, Vector2 position);
 
 void init_explosions(Explosions *explosions);
 
-void free_explosions(const Explosions *explosions);
+void free_explosions(Explosions *explosions);
 
 // collisions
 void check_asteroids_collision(Asteroids *asteroids);
