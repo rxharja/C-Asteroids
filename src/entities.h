@@ -32,13 +32,13 @@ typedef struct Ship {
   double iframes;
 } Ship;
 
-typedef struct Explosion {
+typedef struct Particle {
   Entity entity;
   double lifetime;
-} Explosion;
+} Particle;
 
 typedef struct Explosions {
- Explosion explosions[36];
+ Particle particles[TOTAL_PARTICLES];
 } Explosions;
 
 typedef struct Asteroid {
@@ -71,9 +71,9 @@ void destroy_asteroids(const Asteroids *asteroids);
 int asteroids_cleared(const Asteroids *asteroids);
 
 // particles
-Explosion create_particles(Vector2 position, double lifetime);
+void create_particles(Explosions *explosions, Vector2 position);
 
-void create_explosions(Explosions *explosions, Vector2 position);
+void init_explosions(Explosions *explosions);
 
 void free_explosions(const Explosions *explosions);
 

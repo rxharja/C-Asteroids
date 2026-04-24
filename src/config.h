@@ -31,7 +31,7 @@
 #define BULLET_DRAG 1
 
 // asteroids
-#define BASE_ASTEROID_SPAWN_COUNT 1
+#define BASE_ASTEROID_SPAWN_COUNT 4
 #define ASTEROID_COUNT_MAX 32
 #define ASTEROID_POLYGON_COUNT 16
 #define ASTEROID_ANGULAR_VELOCITY .2
@@ -43,8 +43,9 @@
 #define ASTEROID_DRAG 1
 
 // particles
+#define PARTICLE_COUNT 32
+#define TOTAL_PARTICLES (PARTICLE_COUNT * ASTEROID_COUNT_MAX)
 #define PARTICLE_LIFETIME 0.5 // seconds
-
 // ship
 #define IFRAMES 3.0 // seconds
 #endif //CONFIG_H

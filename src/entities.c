@@ -108,16 +108,14 @@ int try_collide_bullet(Bullet *b, Asteroids *asteroids, const int a_idx) {
 
 int check_bullet_collision(Bullets *bullets, Asteroids *asteroids, Explosions *explosions) {
   int score = 0;
-  int contact_idx = -1;
   for (int i = 0; i < BULLET_COUNT; i++) {
     Bullet *b = &bullets->bullets[i];
     for (int j = 0; j < ASTEROID_COUNT_MAX; j++) {
       const int points = try_collide_bullet(b, asteroids, j);
+      if (points > 0) create_particles(explosions, asteroids->asteroids[j].entity.body.position);
       score += points;
-      if (points > 0) contact_idx = j;
     }
   }
-  if (contact_idx > -1) create_explosions(explosions, asteroids->asteroids[contact_idx].entity.body.position);
   return score;
 }
 
@@ -128,15 +126,15 @@ int asteroids_cleared(const Asteroids *asteroids) {
   return 1;
 }
 
-Explosion create_particles(const Vector2 position, const double lifetime) {
+Particle init_particles(const double lifetime) {
   Vector2 point[1] = { { 1, 1 }};
-  Explosion explosion = {
+  Particle explosion = {
     (Entity) {
-      create_body( polygon_init(1, point), position,
+      create_body( polygon_init(1, point), (Vector2){ 0, 0 },
         (Vector2) {
             .x = random_range(-75, 75),
             .y = random_range(-75, 75)
-          }, random_range(0, 4), 0, 1, 0), 1
+          }, random_range(0, 4), 0, 1, 0), 0
     }, lifetime
   };
 
@@ -144,15 +142,28 @@ Explosion create_particles(const Vector2 position, const double lifetime) {
   return explosion;
 }
 
-void create_explosions(Explosions *explosions, const Vector2 position) {
-  for (int i = 0; i < 36; i++) {
-    explosions->explosions[i] = create_particles(position, PARTICLE_LIFETIME);
+void create_particles(Explosions *explosions, const Vector2 position) {
+  int valid_particles = 0;
+  for (int i = 0; i < TOTAL_PARTICLES; i++) {
+    if (valid_particles >= PARTICLE_COUNT) return;
+    Particle *particle = &explosions->particles[i];
+    if (particle->entity.valid) continue;
+    body_set_position(&particle->entity.body, position);
+    particle->entity.valid = 1;
+    particle->lifetime = PARTICLE_LIFETIME;
+    valid_particles++;
+  }
+}
+
+void init_explosions(Explosions *explosions) {
+  for (int i = 0; i < TOTAL_PARTICLES; i++) {
+    explosions->particles[i] = init_particles(PARTICLE_LIFETIME);
   }
 }
 
 void free_explosions(const Explosions *explosions) {
-  for (int i = 0; i < ASTEROID_COUNT_MAX; i++) {
-    destroy_body(&explosions->explosions[i].entity.body);
+  for (int i = 0; i < TOTAL_PARTICLES; i++) {
+    destroy_body(&explosions->particles[i].entity.body);
   }
 }
 
@@ -184,7 +195,6 @@ int is_ship_colliding(const Ship *ship, const Asteroids *asteroids) {
   }
   return 0;
 }
-
 
 void fire_bullet(Bullets *bullet_mgr, const Ship *ship) {
   for (int i = 0; i < BULLET_COUNT; i++) {

@@ -87,6 +87,7 @@ static void init_game_props(GameState *app) {
     allocate_wave_text(app);
     update_score_counter(app);
     init_lives(app->lives, &app->ship);
+    init_explosions(&app->explosions);
     set_state(app, TITLE);
 }
 
@@ -217,8 +218,8 @@ static void move_and_shoot(GameState *game_state, const double dt) {
         degrade_bullet(&bullets->bullets[i], dt);
     }
 
-    for (int i = 0; i < ASTEROID_COUNT_MAX; i++) {
-        Explosion *explosion = &game_state->explosions.explosions[i];
+    for (int i = 0; i < TOTAL_PARTICLES; i++) {
+        Particle *explosion = &game_state->explosions.particles[i];
         try_integrate_entity(&explosion->entity, dt);
         try_draw_entity(game_state->renderer, &explosion->entity);
         if (explosion->lifetime > 0) explosion->lifetime -= dt;
@@ -310,6 +311,7 @@ void destroy_entities(const GameState *app) {
     destroy_bullets(&app->bullets);
     destroy_asteroids(&app->asteroids);
     destroy_body(&app->ship.entity.body);
+    free_explosions(&app->explosions);
     for (int i = 0; i < LIVES; i++) {
        destroy_body(&app->lives[i]);
     }
