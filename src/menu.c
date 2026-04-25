@@ -63,6 +63,34 @@ void render_menu(SDL_Renderer *r, const Menu *m, const char *title, const char *
     SDL_DestroyTexture(option2_texture);
 }
 
+void render_info(SDL_Renderer *r, const Menu *m, const char *section1, const char *section2) {
+    const SDL_Color white = {255, 255, 255, 255};
+
+    SDL_Surface *section1_surface = TTF_RenderText_Blended(m->font, section1, white);
+    SDL_Texture *section1_texture = SDL_CreateTextureFromSurface(r, section1_surface);
+    SDL_Surface *section2_surface = TTF_RenderText_Blended(m->font, section2, white);
+    SDL_Texture *section2_texture = SDL_CreateTextureFromSurface(r, section2_surface);
+
+    const SDL_Rect dest1 = {
+        MARGIN_X,
+        WINDOW_HEIGHT - section1_surface->h - MARGIN_Y,
+        section1_surface->w, section1_surface->h
+    };
+
+    const SDL_Rect dest2 = {
+        WINDOW_WIDTH - section2_surface->w - MARGIN_X,
+        WINDOW_HEIGHT - section2_surface->h - MARGIN_Y,
+        section2_surface->w, section2_surface->h
+    };
+
+    SDL_RenderCopy(r, section1_texture, NULL, &dest1);
+    SDL_RenderCopy(r, section2_texture, NULL, &dest2);
+
+    SDL_FreeSurface(section1_surface);
+    SDL_DestroyTexture(section1_texture);
+    SDL_FreeSurface(section2_surface);
+    SDL_DestroyTexture(section2_texture);
+}
 
 void destroy_menu(const Menu *menu) {
     TTF_CloseFont(menu->font);

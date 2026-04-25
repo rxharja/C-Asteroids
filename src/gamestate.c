@@ -283,10 +283,17 @@ void handle_game_state(GameState *state) {
             create_asteroids(&state->asteroids, BASE_ASTEROID_SPAWN_COUNT + state->wave);
             set_state(state, PLAYING);
             break;
-        case GAME_OVER:
+        case GAME_OVER: {
+            char wave_txt[24];
+            snprintf(wave_txt, sizeof(wave_txt),"Wave: %i", state->wave + 1);
+
+            char score_txt[24];
+            snprintf(score_txt, sizeof(wave_txt),"Score: %i", state->score);
+
             render_menu(state->renderer, &state->menu, "GAME OVER", "Restart", "Quit");
-            // reset_state(state);
+            render_info(state->renderer, &state->menu, wave_txt, score_txt);
             break;
+        }
     }
 
     SDL_RenderPresent(state->renderer);

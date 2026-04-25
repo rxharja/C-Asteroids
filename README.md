@@ -16,5 +16,5 @@ This is a bespoke implementation of asteroids done from scratch (except for SDL)
 - [X] Invincibility Frames
 - [X] Score Counter
 - [X] Particles
-- [ ] Game Over Screen
+- [X] Game Over Screen
 - [ ] WASM Support
