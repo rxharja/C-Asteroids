@@ -30,8 +30,6 @@ static Asteroid replace_asteroid(Asteroid *asteroid, const double r) {
 Asteroid create_asteroid(const double r) {
   Asteroid asteroid = {0};
   asteroid.radius = r;
-  const Vector2 position = { .x = rand() % WINDOW_WIDTH, .y = rand() % WINDOW_HEIGHT };
-
   const double angle_inc =  2 * M_PI / ASTEROID_POLYGON_COUNT;
 
   Vector2 points[ASTEROID_POLYGON_COUNT] = {};
@@ -43,7 +41,7 @@ Asteroid create_asteroid(const double r) {
 
   asteroid.entity.body = create_body(
     polygon_init(ASTEROID_POLYGON_COUNT, points),
-    position,
+    random_edge_position(),
     (Vector2) {
       .x = random_range(-ASTEROID_VELOCITY_FACTOR, ASTEROID_VELOCITY_FACTOR),
       .y = random_range(-ASTEROID_VELOCITY_FACTOR, ASTEROID_VELOCITY_FACTOR),
