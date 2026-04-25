@@ -18,8 +18,6 @@ typedef enum State {
     GAME_OVER,
 } State;
 
-#define STATE_STACK_MAX 4
-
 typedef struct {
     SDL_Renderer *renderer;
     SDL_Window *window;

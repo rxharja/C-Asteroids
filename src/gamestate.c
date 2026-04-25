@@ -84,7 +84,7 @@ static void set_state(GameState *g, const State s) {
     enter_state(g, s);
 }
 
-static void init_game_props(GameState *app) {
+static void init_game_props(GameState *app, State initial_state) {
     app->wave = 0;
     app->asteroids = (Asteroids){ .count = ASTEROID_COUNT_MAX };
     create_asteroids(&app->asteroids, BASE_ASTEROID_SPAWN_COUNT + app->wave);
@@ -96,7 +96,12 @@ static void init_game_props(GameState *app) {
     update_score_counter(app);
     init_lives(app->lives, &app->ship);
     init_explosions(&app->explosions);
-    set_state(app, TITLE);
+    set_state(app, initial_state);
+}
+
+static void reset_state(GameState *state) {
+    destroy_entities(state);
+    init_game_props(state, MID_WAVE_PAUSE);
 }
 
 GameState *init_app(void) {
@@ -121,8 +126,8 @@ GameState *init_app(void) {
     app->renderer = SDL_CreateRenderer(app->window, -1, rendererFlags);
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
 
-    init_menu(&app->menu, app->renderer);
-    init_game_props(app);
+    init_menu(&app->menu);
+    init_game_props(app, TITLE);
 
     return app;
 }
@@ -142,15 +147,17 @@ void handle_keydown(GameState *game, const SDL_Scancode key) {
     switch (current_state(game)) {
         case TITLE:
         case PAUSE:
+        case GAME_OVER:
             if (key == SDL_SCANCODE_W || key == SDL_SCANCODE_UP)
                 game->menu.menu_choice = !game->menu.menu_choice;
             if (key == SDL_SCANCODE_S || key == SDL_SCANCODE_DOWN)
                 game->menu.menu_choice = !game->menu.menu_choice;
-            if (key == SDL_SCANCODE_RETURN && game->menu.menu_choice == PLAY) {
+            if (key == SDL_SCANCODE_RETURN && game->menu.menu_choice == OPTION1) {
                 if (current_state(game) == PAUSE) set_state(game, game->previous_state);
+                else if (current_state(game) == GAME_OVER) reset_state(game);
                 else set_state(game, MID_WAVE_PAUSE); // initial state after title
             }
-            if (key == SDL_SCANCODE_RETURN && game->menu.menu_choice == QUIT) {
+            if (key == SDL_SCANCODE_RETURN && game->menu.menu_choice == OPTION2) {
                 destroy_app(game);
                 exit(0);
             }
@@ -246,11 +253,6 @@ static void mid_wave_pause(GameState *game_state, const double dt) {
     move_and_shoot(game_state, dt);
 }
 
-static void reset_state(GameState *state) {
-    destroy_entities(state);
-    init_game_props(state);
-}
-
 void handle_game_state(GameState *state) {
     SDL_SetRenderDrawColor(state->renderer, 0, 0, 0, 255);
     SDL_RenderClear(state->renderer);
@@ -259,10 +261,10 @@ void handle_game_state(GameState *state) {
 
     switch (current_state(state)) {
         case TITLE:
-            render_title(&state->menu, state->renderer);
+            render_menu(state->renderer, &state->menu, "ASTEROIDS", "Play", "Quit");
             break;
         case PAUSE:
-            render_pause(&state->menu, state->renderer);
+            render_menu(state->renderer, &state->menu, "PAUSE", "Continue", "Quit");
             break;
         case PLAYING:
             play(state, dt);
@@ -282,7 +284,8 @@ void handle_game_state(GameState *state) {
             set_state(state, PLAYING);
             break;
         case GAME_OVER:
-            reset_state(state);
+            render_menu(state->renderer, &state->menu, "GAME OVER", "Restart", "Quit");
+            // reset_state(state);
             break;
     }
 

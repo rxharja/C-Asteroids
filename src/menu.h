@@ -4,35 +4,17 @@
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_ttf.h>
 
-typedef enum MenuChoice { PLAY, QUIT } MenuChoice;
+typedef enum MenuChoice { OPTION1, OPTION2 } MenuChoice;
 
 typedef struct {
     TTF_Font *title_font;
     TTF_Font *font;
-
-    SDL_Texture *title_texture;
-    SDL_Surface *title_surface;
-
-    SDL_Texture *play_active;
-    SDL_Texture *play_inactive;
-    SDL_Surface *play_surface;
-
-    SDL_Texture *continue_active;
-    SDL_Texture *continue_inactive;
-    SDL_Surface *continue_surface;
-
-    SDL_Texture *quit_active;
-    SDL_Texture *quit_inactive;
-    SDL_Surface *quit_surface;
-
     MenuChoice menu_choice;
 } Menu;
 
-void init_menu(Menu *menu, SDL_Renderer *r);
+void init_menu(Menu *menu);
 
-void render_title(const Menu *menu, SDL_Renderer *renderer);
-
-void render_pause(const Menu *menu, SDL_Renderer *renderer);
+void render_menu(SDL_Renderer *r, const Menu *m, const char *title, const char *option1, const char *option2);
 
 void destroy_menu(const Menu *menu);
 
