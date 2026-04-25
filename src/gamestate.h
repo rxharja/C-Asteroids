@@ -6,7 +6,6 @@
 #define ASTEROIDS_GAMESTATE_H
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_render.h>
-#include <SDL2/SDL_ttf.h>
 #include "menu.h"
 #include "entities.h"
 

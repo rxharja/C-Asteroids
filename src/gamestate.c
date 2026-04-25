@@ -37,17 +37,25 @@ void render_lives(const GameState *game_state) {
     }
 }
 
+static void free_wave_text(GameState *game_state) {
+    SDL_FreeSurface(game_state->wave_surface);
+    game_state->wave_surface = NULL;
+    SDL_DestroyTexture(game_state->wave_texture);
+    game_state->wave_texture = NULL;
+}
+
 static void allocate_wave_text(GameState *game_state) {
     const SDL_Color white = {255, 255, 255, 255};
     char txt[24];
     snprintf(txt, sizeof(txt),"WAVE %i", game_state->wave + 1);
+    free_wave_text(game_state);
     game_state->wave_surface = TTF_RenderText_Blended(game_state->menu.title_font, txt, white);
     game_state->wave_texture = SDL_CreateTextureFromSurface(game_state->renderer, game_state->wave_surface);
 }
 
 static void update_score_counter(GameState *game_state) {
-    if (game_state->score_surface != NULL) SDL_FreeSurface(game_state->score_surface);
-    if (game_state->score_texture != NULL) SDL_DestroyTexture(game_state->score_texture);
+    SDL_FreeSurface(game_state->score_surface);
+    SDL_DestroyTexture(game_state->score_texture);
     const SDL_Color white = {255, 255, 255, 255};
     char txt[15];
     snprintf(txt, sizeof(txt),"%i", game_state->score);
@@ -259,8 +267,7 @@ void handle_game_state(GameState *state) {
         case PLAYING:
             play(state, dt);
             if (asteroids_cleared(&state->asteroids)) {
-                if (state->wave_surface != NULL) SDL_FreeSurface(state->wave_surface);
-                if (state->wave_texture != NULL) SDL_DestroyTexture(state->wave_texture);
+                free_wave_text(state);
                 state->wave++;
                 allocate_wave_text(state);
                 set_state(state, MID_WAVE_PAUSE);
@@ -275,7 +282,7 @@ void handle_game_state(GameState *state) {
             set_state(state, PLAYING);
             break;
         case GAME_OVER:
-            if (state->lives <= 0) reset_state(state);
+            reset_state(state);
             break;
     }
 
