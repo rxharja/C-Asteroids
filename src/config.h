@@ -8,6 +8,8 @@
 /*--render--*/
 #define WINDOW_WIDTH 1600
 #define WINDOW_HEIGHT 1200
+#define MARGIN_X (WINDOW_WIDTH / 4)
+#define MARGIN_Y (WINDOW_HEIGHT / 6)
 
 /*--physics--*/
 #define DRAG_FACTOR .2
@@ -31,7 +33,7 @@
 #define BULLET_DRAG 1
 
 // asteroids
-#define BASE_ASTEROID_SPAWN_COUNT 4
+#define BASE_ASTEROID_SPAWN_COUNT 8
 #define ASTEROID_COUNT_MAX 32
 #define ASTEROID_POLYGON_COUNT 16
 #define ASTEROID_ANGULAR_VELOCITY .2
