@@ -17,3 +17,4 @@ This is a bespoke implementation of asteroids done from scratch (except for SDL)
 - [X] Score Counter
 - [X] Particles
 - [ ] Game Over Screen
+- [ ] WASM Support
