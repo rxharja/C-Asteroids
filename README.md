@@ -18,4 +18,4 @@ This is a bespoke implementation of asteroids done from scratch (except for SDL)
 - [X] Particles
 - [X] Game Over Screen
 - [X] Sound
-- [ ] WASM Support
+- [X] WASM Support
