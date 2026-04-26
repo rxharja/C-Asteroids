@@ -6,8 +6,10 @@
 #define ASTEROIDS_GAMESTATE_H
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_render.h>
+#include "SDL_mixer.h"
 #include "menu.h"
 #include "entities.h"
+#include "Sound.h"
 
 typedef enum State {
     TITLE,
@@ -22,6 +24,7 @@ typedef struct {
     SDL_Renderer *renderer;
     SDL_Window *window;
     SDL_Event event;
+    Sound sound;
 
     uint wave;
     Uint32 paused_time;

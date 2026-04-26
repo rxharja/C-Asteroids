@@ -45,9 +45,9 @@
 #define ASTEROID_DRAG 1
 
 // particles
-#define PARTICLE_COUNT 32
+#define PARTICLE_COUNT 16
 #define TOTAL_PARTICLES (PARTICLE_COUNT * ASTEROID_COUNT_MAX)
-#define PARTICLE_LIFETIME 0.5 // seconds
+#define PARTICLE_LIFETIME 1 // seconds
 // ship
 #define IFRAMES 3.0 // seconds
 #endif //CONFIG_H

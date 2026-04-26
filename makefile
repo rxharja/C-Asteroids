@@ -3,7 +3,7 @@ AR      := ar
 CFLAGS  := -O1 -g -Wall -D_GNU_SOURCE=1 -D_THREAD_SAFE
 DEPFLAGS := -MMD -MP
 SDL_CFLAGS := $(shell sdl2-config --cflags)
-SDL_LIBS   := $(shell sdl2-config --libs) -lSDL2_ttf
+SDL_LIBS   := $(shell sdl2-config --libs) -lSDL2_ttf -lSDL2_mixer
 
 BIN_DIR   := bin
 BUILD_DIR := build

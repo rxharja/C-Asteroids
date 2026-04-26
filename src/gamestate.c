@@ -125,6 +125,7 @@ GameState *init_app(void) {
 
     app->renderer = SDL_CreateRenderer(app->window, -1, rendererFlags);
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
+    app->sound = init_sound();
 
     init_menu(&app->menu);
     init_game_props(app, TITLE);
@@ -195,6 +196,7 @@ void handle_playing_kb(GameState *game, const double dt) {
         const Uint32 now = SDL_GetTicks();
         if (now - bullets->last_shot >= bullets->cooldown) {
             fire_bullet(bullets, ship);
+            shoot(&game->sound);
             bullets->last_shot = now;
         }
     }
@@ -320,6 +322,7 @@ void play(GameState *game_state, const double dt) {
     const int points = check_bullet_collision(&game_state->bullets, asteroids, &game_state->explosions);
 
     if (points <= 0) return;
+    explode(&game_state->sound);
     game_state->score += points;
     update_score_counter(game_state);
 }
@@ -343,6 +346,7 @@ void destroy_app(GameState *app) {
     SDL_DestroyTexture(app->score_texture);
     SDL_DestroyRenderer(app->renderer);
     SDL_DestroyWindow(app->window);
+    free_sound(&app->sound);
     TTF_Quit();
     SDL_Quit();
     free(app);
