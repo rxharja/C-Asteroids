@@ -22,6 +22,9 @@
 #define TITLE_OFFSET 100
 #define WAVE_TEXT_OFFSET 300
 
+/*--sound--*/
+#define BEAT_TIMER 1 // seconds
+
 /*--entities-- */
 
 // bullets

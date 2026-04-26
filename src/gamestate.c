@@ -305,6 +305,10 @@ void play(GameState *game_state, const double dt) {
     Ship *ship = &game_state->ship;
     Asteroids *asteroids = &game_state->asteroids;
 
+    const double active_asteroids = count_active_asteroids(&game_state->asteroids);
+    const double beat_interval = 0.1 + (active_asteroids / (double)ASTEROID_COUNT_MAX) * 0.9;
+    beat(&game_state->sound, dt, beat_interval);
+
     move_and_shoot(game_state, dt);
     for (int i = 0; i < ASTEROID_COUNT_MAX; i++) {
         try_integrate_entity(&asteroids->asteroids[i].entity, dt);
