@@ -61,6 +61,18 @@ void create_asteroids(Asteroids *asteroids, const int count) {
   }
 }
 
+int count_active_asteroids(const Asteroids *asteroids) {
+  int count = 0;
+  for (int i = 0; i < ASTEROID_COUNT_MAX; i++) {
+    const Asteroid *asteroid = &asteroids->asteroids[i];
+    if (!asteroid->entity.valid) continue;
+    if (asteroid->radius >= ASTEROID_LARGE_THRESHOLD) count += 6;
+    else if (asteroid->radius >= ASTEROID_MEDIUM_THRESHOLD) count += 2;
+    else count += 1;
+  }
+  return count;
+}
+
 void try_collide_asteroids(Asteroid *a, Asteroid *b) {
   if (!a->entity.valid || !b->entity.valid) return;
   if (!is_colliding_sat(&a->entity.body, &b->entity.body)) return;

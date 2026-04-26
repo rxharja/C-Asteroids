@@ -68,6 +68,8 @@ void create_asteroids(Asteroids *asteroids, int count);
 
 void destroy_asteroids(Asteroids *asteroids);
 
+int count_active_asteroids(const Asteroids *asteroids);
+
 int asteroids_cleared(const Asteroids *asteroids);
 
 // particles

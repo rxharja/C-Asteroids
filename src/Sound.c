@@ -4,6 +4,8 @@
 
 #include "Sound.h"
 
+#include "config.h"
+
 Sound init_sound() {
    Sound sound = {0};
 
@@ -19,6 +21,9 @@ Sound init_sound() {
    sound.explode = Mix_LoadWAV("sound/explode.wav");
    sound.low_bass = Mix_LoadWAV("sound/low_bass.wav");
    sound.high_bass = Mix_LoadWAV("sound/high_bass.wav");
+
+   sound.beat_timer = BEAT_TIMER;
+   sound.beat_toggle = LOW;
 
    return sound;
 }
@@ -37,6 +42,18 @@ void low_bass(const Sound *sound) {
 
 void high_bass(const Sound *sound) {
    Mix_PlayChannel(-1, sound->high_bass, 0);
+}
+
+static void toggle_beat(Sound *sound) {
+    sound->beat_toggle = !sound->beat_toggle;
+}
+
+void beat(Sound *sound, const double dt, const double interval) {
+   sound->beat_timer -= dt;
+   if (sound->beat_timer > 0) return;
+   sound->beat_toggle == LOW ? low_bass(sound) : high_bass(sound);
+   sound->beat_timer = interval;
+   toggle_beat(sound);
 }
 
 void free_sound(const Sound *sound) {
