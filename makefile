@@ -32,10 +32,10 @@ TARGET := $(BIN_DIR)/asteroids
 all: $(TARGET)
 
 wasm: CC = emcc
-wasm: FLAGS = -O3 -s USE_SDL=2 -s USE_SDL_TTF=2 -s USE_SDL_MIXER=2
-wasm: LDFLAGS = --preload-file lib --preload-file sound -lm
+wasm: FLAGS = -Oz -s USE_SDL=2 -s USE_SDL_TTF=2 -s USE_SDL_MIXER=2 -sGL_TRACK_ERRORS=0 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s MALLOC=emmalloc
+wasm: LDFLAGS = --preload-file lib --preload-file sound -lm --closure 1
 wasm:
-	$(CC) $(FLAGS) $(GAME_SRC) $(PHYS_SRC) -I$(GAME_DIR) -I$(PHYS_DIR) $(LDFLAGS) -o bin/asteroids.html
+	$(CC) $(FLAGS) $(GAME_SRC) $(PHYS_SRC) -I$(GAME_DIR) -I$(PHYS_DIR) $(LDFLAGS) -o bin/asteroids.js
 
 physics: $(PHYS_LIB)
 

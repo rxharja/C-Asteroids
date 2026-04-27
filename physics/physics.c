@@ -2,10 +2,15 @@
 #include <math.h>
 
 static void update_world(const Body *body) {
+    const double c = cos(body->angle);
+    const double s = sin(body->angle);
+    const double px = body->position.x;
+    const double py = body->position.y;
     for (size_t i = 0; i < body->shape.point_count; i++) {
-        body->shape.world[i] = vector_add(
-            body->position,
-            vector_rotate(body->shape.offsets[i], body->angle));
+        const double ox = body->shape.offsets[i].x;
+        const double oy = body->shape.offsets[i].y;
+        body->shape.world[i].x = px + c * ox - s * oy;
+        body->shape.world[i].y = py + s * ox + c * oy;
     }
 }
 

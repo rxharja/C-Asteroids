@@ -105,7 +105,8 @@ static void reset_state(GameState *state) {
 }
 
 GameState *init_app(void) {
-    const int rendererFlags = SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED;
+    SDL_SetHint(SDL_HINT_RENDER_BATCHING, "1");
+    const int rendererFlags = SDL_RENDERER_ACCELERATED;
     const int windowFlags = SDL_WINDOW_OPENGL;
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -206,7 +207,7 @@ static double update_ticks(GameState *state) {
     const Uint32 now = SDL_GetTicks();
     const double dt = (now - state->last_tick) / 1000.0;
     state->last_tick = now;
-    return dt;
+    return dt > 0.016 ? 0.016 : dt;
 }
 
 static void check_pause_time(GameState *state) {
