@@ -32,7 +32,7 @@ TARGET := $(BIN_DIR)/asteroids
 all: $(TARGET)
 
 wasm: CC = emcc
-wasm: FLAGS = -Oz -s USE_SDL=2 -s USE_SDL_TTF=2 -s USE_SDL_MIXER=2
+wasm: FLAGS = -O3 -s USE_SDL=2 -s USE_SDL_TTF=2 -s USE_SDL_MIXER=2
 wasm: LDFLAGS = --preload-file lib --preload-file sound -lm
 wasm:
 	$(CC) $(FLAGS) $(GAME_SRC) $(PHYS_SRC) -I$(GAME_DIR) -I$(PHYS_DIR) $(LDFLAGS) -o bin/asteroids.html

@@ -6,8 +6,9 @@
 #define CONFIG_H
 
 /*--render--*/
-#define WINDOW_WIDTH 1600
-#define WINDOW_HEIGHT 1200
+//1280×960
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 960
 #define MARGIN_X (WINDOW_WIDTH / 4)
 #define MARGIN_Y (WINDOW_HEIGHT / 6)
 
