@@ -75,6 +75,7 @@ int count_active_asteroids(const Asteroids *asteroids) {
 
 void try_collide_asteroids(Asteroid *a, Asteroid *b) {
   if (!a->entity.valid || !b->entity.valid) return;
+  if (!is_colliding_circular(&a->entity.body, &b->entity.body, a->radius, b->radius)) return;
   if (!is_colliding_sat(&a->entity.body, &b->entity.body)) return;
   collision_elastic(&a->entity.body, &b->entity.body);
 }
@@ -116,6 +117,13 @@ int split_asteroid(Asteroids *asteroids, const int a_idx) {
 int try_collide_bullet(Bullet *b, Asteroids *asteroids, const int a_idx) {
   const Asteroid *a = &asteroids->asteroids[a_idx];
   if (!a->entity.valid || !b->entity.valid) return 0;
+  const Vector2 *bw = b->entity.body.shape.world;
+  const double bx = (bw[0].x + bw[1].x) * 0.5;
+  const double by = (bw[0].y + bw[1].y) * 0.5;
+  const double dx = bx - a->entity.body.position.x;
+  const double dy = by - a->entity.body.position.y;
+  const double r = a->radius + BULLET_SIZE;
+  if (dx * dx + dy * dy > r * r) return 0;
   if (!is_colliding_sat(&b->entity.body,&a->entity.body)) return 0;
   b->entity.valid = 0;
   return split_asteroid(asteroids, a_idx);
