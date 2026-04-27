@@ -49,7 +49,8 @@ void body_accelerate(Body *body, const Vector2 acceleration) {
 int is_colliding_circular(const Body *b1, const Body *b2, const double r1, const double r2) {
     const double dx = b1->position.x - b2->position.x;
     const double dy = b1->position.y - b2->position.y;
-    return dx * dx + dy * dy < (r1 + r1) * (r2 + r2);
+    const double r = r1 + r2;
+    return dx * dx + dy * dy < r * r;
 }
 
 int is_colliding_sat(const Body *a, const Body *b) {
